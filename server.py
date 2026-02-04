@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, send_file
 import pandas as pd
 import io
 import os
+import sys
 import traceback
 import zipfile  # Add this import
 from app_info import __version__
@@ -19,7 +20,19 @@ try:
 except Exception as e:
     print(f"Error importing modules: {str(e)}")
 
-app = Flask(__name__)
+# Get the base path for templates and static files
+# This handles both normal execution and PyInstaller frozen execution
+if getattr(sys, 'frozen', False):
+    # Running as a PyInstaller bundle
+    base_path = sys._MEIPASS
+else:
+    # Running normally
+    base_path = os.path.dirname(os.path.abspath(__file__))
+
+# Initialize Flask with correct paths
+app = Flask(__name__,
+            template_folder=os.path.join(base_path, 'templates'),
+            static_folder=os.path.join(base_path, 'static'))
 
 
 def create_app() -> Flask:
