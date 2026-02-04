@@ -1,0 +1,92 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., v1.2.0)'
+        required: true
+        default: 'v1.2.0'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+      
+      - name: Build executable
+        run: python build.py
+      
+      - name: Get version from tag or input
+        id: get_version
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION="${GITHUB_REF#refs/tags/}"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Release version: $VERSION"
+      
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            dist/ExcelProcessor.exe
+            dist/BUILD_INFO.txt
+          name: Release ${{ steps.get_version.outputs.version }}
+          body: |
+            ## Excel Processor ${{ steps.get_version.outputs.version }}
+            
+            ### What's New
+            - Standalone executable with auto-update capability
+            - All processing modules bundled (Borderou, CardCec, Classes)
+            - System tray application for easy access
+            
+            ### Installation
+            1. Download `ExcelProcessor.exe`
+            2. Run the executable
+            3. The app will automatically check for updates on startup
+            
+            ### Features
+            - **Adaos**: Add percentage markup to values
+            - **SGR**: Apply SGR processing rules
+            - **Minus**: Subtract specified values
+            - **Extract**: Extract specific data
+            - **Borderou**: Transform borderou format
+            - **CardCec**: Process card data
+            
+            ### Technical Details
+            - Built with PyInstaller
+            - Auto-updates via GitHub Releases
+            - All processing happens locally on your machine
+            - No server hosting required
+            
+            ### System Requirements
+            - Windows 10 or later
+            - No additional dependencies required
+            
+            ---
+            **Full Changelog**: https://github.com/Andrew-0807/ExcelProcessor/commits/${{ steps.get_version.outputs.version }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
