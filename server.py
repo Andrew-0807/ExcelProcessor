@@ -15,7 +15,7 @@ try:
     
     # Import new processing modules
     from borderou.main import BorderouPipeline
-    from CardCec.transform import CSVTransformer
+    from CardCec.pos_processor import process_pos_file, detect_pos_type
 except Exception as e:
     print(f"Error importing modules: {str(e)}")
 
@@ -108,24 +108,31 @@ def process_file():
                         if os.path.exists(temp_file_path):
                             os.remove(temp_file_path)
                 elif process_type == 'cardcec':
-                    # Handle cardcec processing - convert Excel to CSV first, then process
-                    csv_data = df.to_csv(index=False)
-                    temp_csv_path = f"temp_{os.path.splitext(file.filename)[0]}.csv"
-                    
-                    with open(temp_csv_path, 'w', newline='', encoding='utf-8') as temp_csv:
-                        temp_csv.write(csv_data)
+                    # Save the uploaded file temporarily
+                    temp_file_path = f"temp_{file.filename}"
+                    with open(temp_file_path, 'wb') as temp_file:
+                        file.seek(0)
+                        temp_file.write(file.read())
                     
                     try:
-                        transformer = CSVTransformer()
-                        temp_output_path = f"temp_output_{os.path.splitext(file.filename)[0]}.csv"
-                        result_df = transformer.transform_to_output(temp_csv_path, temp_output_path)
+                        # Process the file with the new POS processor
+                        temp_output_path = f"processed_{file.filename}"
+                        pos_type = detect_pos_type(file.filename)
+                        process_pos_file(temp_file_path, temp_output_path, pos_type)
+                        
+                        # Read the processed file back into a DataFrame
+                        result_df = pd.read_csv(temp_output_path)
                         
                         # Clean up temp files
                         if os.path.exists(temp_output_path):
                             os.remove(temp_output_path)
+                    except Exception as e:
+                        print(f"Error processing {file.filename} with POS processor: {e}")
+                        raise
                     finally:
-                        if os.path.exists(temp_csv_path):
-                            os.remove(temp_csv_path)
+                        # Clean up the temp file
+                        if os.path.exists(temp_file_path):
+                            os.remove(temp_file_path)
                 else:
                     return "Invalid process type", 400
 

@@ -1,0 +1,7 @@
+flask
+pandas
+openpyxl
+pystray
+Pillow
+requests
+packaging

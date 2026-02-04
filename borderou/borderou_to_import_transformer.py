@@ -21,6 +21,8 @@ def extract_file_patterns(filename):
         'CASA 0012': {'serie': 'BFM1 0012', 'denumire': 'marfa m1 ', 'cod_depozit': '1'},
         '102': {'serie': 'BFM2 102', 'denumire': 'marfa m2 ', 'cod_depozit': '2'},
         '103': {'serie': 'BFM2 103', 'denumire': 'marfa m2 ', 'cod_depozit': '2'},
+        'M1': {'serie': 'BFM1', 'denumire': 'marfa m1 ', 'cod_depozit': '1'},
+        'M2': {'serie': 'BFM2', 'denumire': 'marfa m2 ', 'cod_depozit': '2'},
         'M3': {'serie': 'BFM3', 'denumire': 'marfa m3 ', 'cod_depozit': '3'},
     }
     
@@ -33,7 +35,7 @@ def extract_file_patterns(filename):
     
     for pattern_key, pattern_info in sorted_patterns:
         if pattern_key in filename_upper:
-            print(f"📋 Matched pattern '{pattern_key}' for file: {filename}")
+            # print(f"📋 Matched pattern '{pattern_key}' for file: {filename}")
             return pattern_info['serie'], pattern_info['denumire'], pattern_info['cod_depozit']
     
     # Default fallback if no pattern matches
@@ -42,7 +44,7 @@ def extract_file_patterns(filename):
 
 def read_borderou_data(file_path):
     """Read and clean the Borderou CSV data"""
-    print(f"📊 Processing {os.path.basename(file_path)}...")
+    # print(f"📊 Processing {os.path.basename(file_path)}...")
     
     # Read the CSV file
     df = pd.read_csv(file_path)
@@ -54,7 +56,7 @@ def read_borderou_data(file_path):
     if not pd.api.types.is_datetime64_any_dtype(df['Data']):
         df['Data'] = pd.to_datetime(df['Data'])
     
-    print(f"📊 Processing {len(df)} transactions from Borderou...")
+    # print(f"📊 Processing {len(df)} transactions from Borderou...")
     return df
 
 def transform_borderou_to_import_format(input_file, output_file=None):
@@ -67,8 +69,8 @@ def transform_borderou_to_import_format(input_file, output_file=None):
     filename = os.path.basename(input_file)
     serie_document, denumire_articol, cod_depozit = extract_file_patterns(filename)
     
-    print(f"📊 Processing {len(df)} transactions from Borderou...")
-    print(f"📋 Using Serie document: '{serie_document}', Denumire articol: '{denumire_articol}'")
+    # print(f"📊 Processing {len(df)} transactions from Borderou...")
+    # print(f"📋 Using Serie document: '{serie_document}', Denumire articol: '{denumire_articol}'")
     
     # Check if this is an M1 or M2 file that needs splitting
     needs_splitting = any(pattern in filename.upper() for pattern in ['M1', 'M2'])
@@ -90,10 +92,11 @@ def transform_borderou_to_import_format(input_file, output_file=None):
     # Filename to code mapping - easily extensible
     filename_codes = {
         'FF1': {'cod_articol_prefix': 'F', 'cod_depozit_override': 3, 'denumire': 'ff 1'},
-        'FF2': {'cod_articol_prefix': 'F', 'cod_depozit_override': 3, 'denumire': 'FF 2'},
+        'FF2': {'cod_articol_prefix': 'F 2', 'cod_depozit_override': 4, 'denumire': 'FF 2'},
         'FFAMT': {'cod_articol_prefix': 'F', 'cod_depozit_override': 3, 'denumire': 'FF AMT'},
         'AUTOSERVIRE AMT': {'cod_articol_prefix': 'A', 'cod_depozit_override': 1, 'denumire': 'autoservire'},
         'AUTOSERVIRE': {'cod_articol_prefix': 'A', 'cod_depozit_override': 1, 'denumire': 'autoservire'},
+        'AUTOSERV': {'cod_articol_prefix': 'A', 'cod_depozit_override': 1, 'denumire': 'autoservire'},
         'RESTAURANT AMT': {'cod_articol_prefix': 'R', 'cod_depozit_override': 2, 'denumire': 'restaurant'},
         'RESTAURANT': {'cod_articol_prefix': 'R', 'cod_depozit_override': 2, 'denumire': 'restaurant'},
         'CASA 0014': {'cod_articol_prefix': 'M1', 'cod_depozit_override': 1, 'denumire': 'marfa m1 '},
@@ -116,7 +119,7 @@ def transform_borderou_to_import_format(input_file, output_file=None):
             code_mapping = mapping
             cod_depozit = mapping['cod_depozit_override']  # Override with specific code
             denumire_articol = mapping['denumire']
-            print(f"📋 Using filename mapping '{key}' for file: {filename}")
+            # print(f"📋 Using filename mapping '{key}' for file: {filename}")
             break
     
     if not code_mapping:
@@ -153,7 +156,7 @@ def transform_borderou_to_import_format(input_file, output_file=None):
                 pos_groups[pos_id] = []
             pos_groups[pos_id].append(row)
         
-        print(f"📊 Found {len(pos_groups)} POS terminals: {list(pos_groups.keys())}")
+        # print(f"📊 Found {len(pos_groups)} POS terminals: {list(pos_groups.keys())}")
         
         # Process each POS group separately
         output_files = []
@@ -330,15 +333,15 @@ def transform_borderou_to_import_format(input_file, output_file=None):
     # Save to CSV with exact formatting
     output_df.to_csv(output_file, index=False)
     
-    print(f"✅ Transformation completed successfully!")
-    print(f"📁 Input: {input_file}")
-    print(f"📁 Output: {output_file}")
-    print(f"📊 Generated {len(output_df)} import rows from {len(df)} Borderou transactions")
-    print(f"📋 Structure: {len(output_columns)} columns matching target format exactly")
+    # print(f"✅ Transformation completed successfully!")
+    # print(f"📁 Input: {input_file}")
+    # print(f"📁 Output: {output_file}")
+    # print(f"📊 Generated {len(output_df)} import rows from {len(df)} Borderou transactions")
+    # print(f"📋 Structure: {len(output_columns)} columns matching target format exactly")
     
     # Show sample of output
-    print("\n📋 Sample of transformed data:")
-    print(output_df.head(3).to_string(index=False, max_cols=10))
+    # print("\n📋 Sample of transformed data:")
+    # print(output_df.head(3).to_string(index=False, max_cols=10))
     
     return output_df, output_file
 
@@ -448,7 +451,7 @@ def process_pos_group(group_df, pos_id, filename, serie_document, denumire_artic
             'Total cu TVA': tva_21_base + tva_21_val,
             'Optiune TVA': 'Taxabile',
             'Cota TVA': 21,
-            'Cod TVA SAF-T': 310352,
+            'Cod TVA SAF-T': 310344,
             'Discount': '',
             'DiscountLinie': ''
         }
@@ -537,9 +540,9 @@ def process_pos_group(group_df, pos_id, filename, serie_document, denumire_artic
     # Save to CSV with exact formatting
     output_df.to_csv(pos_output_file, index=False)
     
-    print(f"✅ POS {pos_id} transformation completed!")
-    print(f"📁 Output: {pos_output_file}")
-    print(f"📊 Generated {len(output_df)} import rows from {len(group_df)} Borderou transactions")
+    # print(f"✅ POS {pos_id} transformation completed!")
+    # print(f"📁 Output: {pos_output_file}")
+    # print(f"📊 Generated {len(output_df)} import rows from {len(group_df)} Borderou transactions")
     
     return pos_output_file, output_df
 
@@ -557,24 +560,25 @@ def validate_format_compatibility(output_file, reference_file):
         
         headers_match = output_headers == reference_headers
         
-        print(f"\n🔍 FORMAT VALIDATION:")
-        print(f"✅ Headers match: {headers_match}")
-        print(f"📊 Output columns: {len(output_headers)}")
-        print(f"📊 Reference columns: {len(reference_headers)}")
+        # print(f"\n🔍 FORMAT VALIDATION:")
+        # print(f"✅ Headers match: {headers_match}")
+        # print(f"📊 Output columns: {len(output_headers)}")
+        # print(f"📊 Reference columns: {len(reference_headers)}")
         
         if not headers_match:
-            print("❌ Header differences found:")
+            # print("❌ Header differences found:")
             for i, (out_h, ref_h) in enumerate(zip(output_headers, reference_headers)):
                 if out_h != ref_h:
-                    print(f"  Column {i}: '{out_h}' vs '{ref_h}'")
+                    # print(f"  Column {i}: '{out_h}' vs '{ref_h}'")
+                    pass
         
         # Check data types compatibility
-        print(f"✅ Output ready for import: {headers_match}")
+        # print(f"✅ Output ready for import: {headers_match}")
         
         return headers_match
         
     except Exception as e:
-        print(f"❌ Validation error: {str(e)}")
+        # print(f"❌ Validation error: {str(e)}")
         return False
 
 if __name__ == "__main__":
@@ -588,19 +592,19 @@ if __name__ == "__main__":
     
     # Check if input directory exists
     if not os.path.exists(input_dir):
-        print(f"❌ Input directory not found: {input_dir}")
-        print("Please create the directory and place your cleaned Borderou CSV files there.")
+        # print(f"❌ Input directory not found: {input_dir}")
+        # print("Please create the directory and place your cleaned Borderou CSV files there.")
         exit(1)
     
     # Find all CSV files in the input directory
     csv_files = [f for f in os.listdir(input_dir) if f.endswith('.csv')]
     
     if not csv_files:
-        print(f"❌ No CSV files found in {input_dir}")
-        print("Please place your cleaned Borderou CSV files in the input directory.")
+        # print(f"❌ No CSV files found in {input_dir}")
+        # print("Please place your cleaned Borderou CSV files in the input directory.")
         exit(1)
     
-    print(f"🔍 Found {len(csv_files)} CSV file(s) to process...")
+    # print(f"🔍 Found {len(csv_files)} CSV file(s) to process...")
     
     # Process each CSV file
     for csv_file in csv_files:
@@ -610,7 +614,7 @@ if __name__ == "__main__":
         base_name = os.path.splitext(csv_file)[0]
         output_file = os.path.join(output_dir, f"import_bon_fiscal_{base_name}.csv")
         
-        print(f"\n📂 Processing: {csv_file}")
+        # print(f"\n📂 Processing: {csv_file}")
         
         try:
             # Transform the file
@@ -620,14 +624,15 @@ if __name__ == "__main__":
             if isinstance(result, list):
                 # Multiple files (M1/M2 case)
                 output_files = result
-                print(f"✅ {csv_file} split into {len(output_files)} files successfully!")
+                # print(f"✅ {csv_file} split into {len(output_files)} files successfully!")
                 
                 # Validate each output file if reference exists
                 if os.path.exists(reference_file):
                     for output_path, _ in output_files:
                         is_compatible = validate_format_compatibility(output_path, reference_file)
                         if is_compatible:
-                            print(f"✅ {os.path.basename(output_path)} format validated successfully!")
+                            pass
+                            # print(f"✅ {os.path.basename(output_path)} format validated successfully!")
                         else:
                             print(f"⚠️  {os.path.basename(output_path)} format validation failed.")
                 else:
@@ -640,15 +645,16 @@ if __name__ == "__main__":
                     is_compatible = validate_format_compatibility(output_path, reference_file)
                     
                     if is_compatible:
-                        print(f"✅ {csv_file} transformed successfully and ready for import!")
+                        pass
+                        # print(f"✅ {csv_file} transformed successfully and ready for import!")
                     else:
                         print(f"⚠️  {csv_file} transformed but format validation failed.")
                 else:
-                    print(f"✅ {csv_file} transformed successfully!")
+                    # print(f"✅ {csv_file} transformed successfully!")
                     print("⚠️  Reference file not found - skipping format validation.")
                 
         except Exception as e:
-            print(f"❌ Error processing {csv_file}: {str(e)}")
-            print("Please check the input file format.")
+            # print(f"❌ Error processing {csv_file}: {str(e)}")
+            # print("Please check the input file format.")
             continue
     

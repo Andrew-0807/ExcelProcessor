@@ -1,2 +1,7 @@
-@echo off
-python "E:\Programming\Trae - MomAutomations\server.py" 
+
+setlocal
+pushd "%~dp0"
+
+python launcher.py
+
+popd

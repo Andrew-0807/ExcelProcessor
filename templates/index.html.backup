@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="/static/Treetog-Junior-Document-excel.ico">
+    <title>Excel Processor - Advanced File Processing</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Excel Processor</h1>
+        <div id="drop-area" class="drop-area">
+            <div class="icon">📁</div>
+            <p>Drag & Drop your files here</p>
+            <p style="font-size: 0.9rem; color: #718096; margin-top: 8px;">or click to browse</p>
+            <input type="file" id="fileInput" multiple>
+        </div>
+        <div class="mode-selection">
+            <label><input type="radio" name="process_type" value="adaos" checked> Adaos</label>
+            <label><input type="radio" name="process_type" value="sgr"> SGR</label>
+            <label><input type="radio" name="process_type" value="minus"> Minus</label>
+            <label><input type="radio" name="process_type" value="extract"> Extract</label>
+            <label><input type="radio" name="process_type" value="borderou"> Borderou</label>
+            <label><input type="radio" name="process_type" value="cardcec"> CardCec</label>
+        </div>
+        <button id="processBtn">Process</button>
+        <!-- <button id="toggle-theme">Toggle Theme</button> -->
+    </div>
+    <footer class="app-footer">
+        <span>&copy; Andrew0807</span>
+        <span>Version {{ app_version }}</span>
+    </footer>
+    <script defer src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

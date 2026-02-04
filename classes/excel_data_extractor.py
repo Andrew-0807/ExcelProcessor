@@ -134,23 +134,23 @@ class ExcelDataExtractor:
         Returns:
             str: Determined document type
         """
-        sep = r"(^|[\s_\-\.])"
-        type_patterns = {
-            "M1": sep + r"M1" + sep,
-            "M2": sep + r"M2" + sep,
-            "M3": sep + r"M3" + sep,
-            "M4": sep + r"M4" + sep,
-            "M5": sep + r"M5" + sep,
-            "AMTA": sep + r"AUTOSERVIRE" + sep,
-            "AMTR": sep + r"RESTAURANT" + sep,
-            "AMTD": sep + r"DEPOZIT" + sep,
-            "FF": sep + r"FAST" + sep +  r"FOOD" + sep
+        # Improved patterns that handle more edge cases
+        patterns = {
+            "M1": r"(?:^|[\s_\-\.\(\)])M1(?:[\s_\-\.\(\)]|$)",  # Handles all separators including parentheses
+            "M2": r"(?:^|[\s_\-\.\(\)])M2(?:[\s_\-\.\(\)]|$)",
+            "M3": r"(?:^|[\s_\-\.\(\)])M3(?:[\s_\-\.\(\)]|$)", 
+            "M4": r"(?:^|[\s_\-\.\(\)])M4(?:[\s_\-\.\(\)]|$)",
+            "M5": r"(?:^|[\s_\-\.\(\)])M5(?:[\s_\-\.\(\)]|$)",
+            "FF1": r"(?:^|[\s_\-\.\(\)])FF1(?:[\s_\-\.\(\)]|$)",
+            "FF2": r"(?:^|[\s_\-\.\(\)])FF2(?:[\s_\-\.\(\)]|$)",
+            "AMTA": r"(?:^|[\s_\-\.\(\)])AUTOSERVIRE(?:[\s_\-\.\(\)]|$)",  # Simple word matching works fine
+            "AMTR": r"(?:^|[\s_\-\.\(\)])RESTAURANT(?:[\s_\-\.\(\)]|$)",
+            "AMTD": r"(?:^|[\s_\-\.\(\)])DEPOZIT(?:[\s_\-\.\(\)]|$)",
+            "FF": r"(?:^|[\s_\-\.\(\)])FAST(?:[\s_\-\.\(\)]|$)"  # Flexible spacing for FAST FOOD
         }
 
-
-
         file_name_upper = file_name.upper()
-        for doc_type, pattern in type_patterns.items():
+        for doc_type, pattern in patterns.items():
             if re.search(pattern, file_name_upper):
                 return doc_type
 
@@ -168,10 +168,12 @@ class ExcelDataExtractor:
             Dict[str, list]: Processed data in standardized format
         """
         type_mapping = {
-            "AMTA": "autoservire",
+            "AMTA": "marfa autoservire",
             "AMTR": "restaurant",
             "AMTD": "depozit",
             "FF": "fast-food",
+            "FF1": "fast-food 1",
+            "FF2": "fast-food 2",
             "M1": "Marfa M1",
             "M2": "Marfa M2",
             "M3": "Marfa M3",
@@ -373,7 +375,7 @@ class ExcelDataExtractor:
         """
         Process TVA logic and fill related fields.
 
-        Args:
+        Args: 
             code (str): Fiscal code
             row (pd.Series): Row data
             tipMarfa (str): Type of merchandise
@@ -383,17 +385,17 @@ class ExcelDataExtractor:
             tva_value = int(str(row.get(tva_field, "0")).replace(",", ".") or "0")
             if not str(code).startswith("RO") and tva_value == 0:
                 procent_tva = int(str(row.get('Procent TVA', row.get('% TVA Ach', "0"))).replace(",", ".") or "0")
-                article = f"{tipMarfa} {procent_tva}%"
+                article = f"{tipMarfa.strip()} {procent_tva}%"
                 tva_option = "SCUTITE"
             elif tva_value == 0:
                 article = "SGR"
                 tva_option = "SCUTITE"
             else:
                 if "AMT" in self.filename:
-                    article = f"{tipMarfa}"
+                    article = f"{tipMarfa.strip()}"
                     tva_option = "TAXABILE"
                 else:
-                    article = f"{tipMarfa} {tva_value}%"
+                    article = f"{tipMarfa.strip()} {tva_value}%"
                     tva_option = "TAXABILE"
 
             if "Denumire articol" not in self.extracted_data:
@@ -407,7 +409,7 @@ class ExcelDataExtractor:
             logger.error(f"Error in _process_tva_logic: {e}")
             if "Denumire articol" not in self.extracted_data:
                 self.extracted_data["Denumire articol"] = []
-            self.extracted_data["Denumire articol"].append(f"{tipMarfa} 0%")
+            self.extracted_data["Denumire articol"].append(f"{tipMarfa.strip()} 0%")
 
             if "Optiune TVA" not in self.extracted_data:
                 self.extracted_data["Optiune TVA"] = []
