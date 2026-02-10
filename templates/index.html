@@ -6,7 +6,8 @@
     <meta name="description" content="Advanced Excel file processor with multiple processing modes for data transformation and analysis">
     <meta name="author" content="Andrew0807">
     <meta name="theme-color" content="#667eea">
-    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='Treetog-Junior-Document-excel.ico') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='excel-processor-icon.svg') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='excel-processor-icon.ico') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <title>Excel Processor - Advanced File Processing</title>
 </head>
@@ -17,11 +18,27 @@
                 <div class="logo-section">
                     <div class="logo-icon" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M14 2H6C4.89543 2 4 2.89543 4 4V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M8 13H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M8 17H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M10 9H9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <defs>
+                                <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+                                </linearGradient>
+                            </defs>
+                            <!-- Document with grid -->
+                            <path d="M14 2H6C4.89543 2 4 2.89543 4 4V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20V8L14 2Z" 
+                                  fill="url(#logoGradient)" stroke="url(#logoGradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M14 2V8H20" fill="#764ba2" stroke="url(#logoGradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <!-- Grid lines -->
+                            <g stroke="white" stroke-width="1.5" opacity="0.8">
+                                <line x1="7" y1="12" x2="17" y2="12"/>
+                                <line x1="7" y1="15" x2="17" y2="15"/>
+                                <line x1="7" y1="18" x2="14" y2="18"/>
+                                <line x1="10" y1="12" x2="10" y2="18"/>
+                                <line x1="14" y1="12" x2="14" y2="18"/>
+                            </g>
+                            <!-- Processing indicator -->
+                            <circle cx="16" cy="17" r="2" fill="white" opacity="0.9"/>
+                            <circle cx="16" cy="17" r="1" fill="#667eea"/>
                         </svg>
                     </div>
                     <div class="logo-text">

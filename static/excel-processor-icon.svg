@@ -1,0 +1,59 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle with gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="docGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f7fafc;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.2"/>
+    </filter>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="32" cy="32" r="30" fill="url(#bgGradient)" filter="url(#shadow)"/>
+  
+  <!-- Document shape -->
+  <g transform="translate(18, 12)">
+    <!-- Main document -->
+    <path d="M4 0 L20 0 L28 8 L28 36 L4 36 Z" fill="url(#docGradient)" stroke="#e2e8f0" stroke-width="1"/>
+    
+    <!-- Folded corner -->
+    <path d="M20 0 L20 8 L28 8" fill="#e2e8f0" stroke="#e2e8f0" stroke-width="1"/>
+    
+    <!-- Grid lines representing spreadsheet -->
+    <g stroke="#667eea" stroke-width="1.5" opacity="0.7">
+      <!-- Horizontal lines -->
+      <line x1="8" y1="12" x2="24" y2="12"/>
+      <line x1="8" y1="18" x2="24" y2="18"/>
+      <line x1="8" y1="24" x2="24" y2="24"/>
+      <line x1="8" y1="30" x2="24" y2="30"/>
+      
+      <!-- Vertical lines -->
+      <line x1="8" y1="12" x2="8" y2="30"/>
+      <line x1="14" y1="12" x2="14" y2="30"/>
+      <line x1="20" y1="12" x2="20" y2="30"/>
+      <line x1="24" y1="12" x2="24" y2="30"/>
+    </g>
+    
+    <!-- Processing indicator gear -->
+    <g transform="translate(22, 26)">
+      <circle cx="0" cy="0" r="4" fill="#667eea" opacity="0.8"/>
+      <circle cx="0" cy="0" r="2" fill="#ffffff"/>
+      <!-- Gear teeth -->
+      <g stroke="#667eea" stroke-width="1" fill="#667eea" opacity="0.8">
+        <rect x="-1" y="-5" width="2" height="2" rx="0.5"/>
+        <rect x="-1" y="3" width="2" height="2" rx="0.5"/>
+        <rect x="-5" y="-1" width="2" height="2" rx="0.5"/>
+        <rect x="3" y="-1" width="2" height="2" rx="0.5"/>
+      </g>
+    </g>
+  </g>
+  
+  <!-- Highlight effect -->
+  <circle cx="32" cy="32" r="30" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1" opacity="0.5"/>
+</svg>

@@ -45,6 +45,8 @@ def _resource_path(relative: str) -> Path:
 
 def _load_icon() -> Image.Image:
     icon_path_candidates = [
+        Path("static") / "excel-processor-icon.ico",
+        Path("excel-processor-icon.ico"),
         Path("static") / "Treetog-Junior-Document-excel.ico",
         Path("Treetog-Junior-Document-excel.ico"),
     ]
@@ -53,7 +55,7 @@ def _load_icon() -> Image.Image:
         if full_path.exists():
             return Image.open(full_path).copy()
     # Fall back to blank icon if nothing is available.
-    return Image.new("RGBA", (64, 64), color=(0, 128, 0, 255))
+    return Image.new("RGBA", (64, 64), color=(102, 126, 234, 255))
 
 
 def _open_interface() -> None:
