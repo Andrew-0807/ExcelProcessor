@@ -19,7 +19,9 @@ from app_info import (
     __version__ as CURRENT_VERSION,
 )
 
-GITHUB_RELEASES_LATEST = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/releases/latest"
+GITHUB_RELEASES_LATEST = (
+    f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/releases"
+)
 REQUEST_TIMEOUT = 10
 READ_TIMEOUT = 30
 
@@ -102,7 +104,9 @@ def check_for_update() -> Optional[UpdateInfo]:
 
     asset = _find_preferred_asset(release.get("assets", []))
     if asset is None:
-        raise AutoUpdateError("Latest release does not provide a Windows executable asset.")
+        raise AutoUpdateError(
+            "Latest release does not provide a Windows executable asset."
+        )
 
     return UpdateInfo(
         version=str(remote_version),
@@ -116,7 +120,9 @@ def check_for_update() -> Optional[UpdateInfo]:
 def download_update(info: UpdateInfo, progress_callback=None) -> Path:
     """Download the release asset and return the temporary file path."""
     if not info.download_url:
-        raise AutoUpdateError("The selected release asset does not expose a download URL.")
+        raise AutoUpdateError(
+            "The selected release asset does not expose a download URL."
+        )
 
     try:
         with _session.get(
@@ -156,7 +162,9 @@ def schedule_install(downloaded_path: Path) -> Path:
         raise AutoUpdateError("Downloaded update file no longer exists.")
 
     if not _is_frozen():
-        raise AutoUpdateError("Automatic install is only available for packaged builds.")
+        raise AutoUpdateError(
+            "Automatic install is only available for packaged builds."
+        )
 
     current_exe = _current_executable()
     update_script = current_exe.with_name(f"{current_exe.stem}_update.bat")
