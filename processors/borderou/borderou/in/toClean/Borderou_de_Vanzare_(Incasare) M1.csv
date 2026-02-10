@@ -1,0 +1,23 @@
+"Borderou de Vanzare (Incasare)
+In intervalul 01.08.2025 - 31.08.2025",Unnamed: 1,Unnamed: 2,Unnamed: 3,Unnamed: 4,Unnamed: 5,Unnamed: 6,Unnamed: 7,Unnamed: 8,Unnamed: 9,Unnamed: 10,Unnamed: 11,Unnamed: 12,Unnamed: 13,Unnamed: 14,Unnamed: 15,Unnamed: 16,Unnamed: 17,Unnamed: 18,Unnamed: 19,Unnamed: 20,Unnamed: 21
+Nr. Crt,Documentul,,,Explicatii,Vanzari (Incasari),,,,,,,,,,,,,,,,
+,Denumire,Nr. Doc(Z),Data,,Total Valoare,Scutit cu drept de reducere,Scutit fara drept de reducere,Taxabile,,0.21,Taxabile,,0.11,Nefolosit,,Nefolosit,,Netaxabil,,,0.0
+,,,,,,,,Baza Impozitare,,Val. TVA,Baza Impozitare,Val. TVA,,Baza Impozitare,Val. TVA,Baza Impozitare,Val. TVA,Baza Impozitare,Val. TVA,,
+1,Z POS,1501,2025-08-01 00:00:00,Z emis la POS nr.14 inchiderea 9583,5657.3,0,0,1580.22,331.85,,3333.54,366.69,,0,0,0,0,45,0,,
+2,Z POS,649,2025-08-01 00:00:00,Z emis la POS nr.12 inchiderea 9582,24283.82,0,0,15766.92,3311.05,,4385.45,482.4,,0,0,0,0,338,0,,
+3,Z POS,1502,2025-08-02 00:00:00,Z emis la POS nr.14 inchiderea 9586,5749.13,0,0,1165.64,244.78,,3873.16,426.05,,0,0,0,0,39.5,0,,
+4,Z POS,650,2025-08-02 00:00:00,Z emis la POS nr.12 inchiderea 9584,19724.81,0,0,12895.47,2708.05,,3419.18,376.11,,0,0,0,0,326,0,,
+5,Z POS,1503,2025-08-03 00:00:00,Z emis la POS nr.14 inchiderea 9587,5519.52,0,0,1887.17,396.31,,2862.2,314.84,,0,0,0,0,59,0,,
+6,Z POS,651,2025-08-03 00:00:00,Z emis la POS nr.12 inchiderea 9585,18420.5,0,0,12450.46,2614.6,,2832.83,311.61,,0,0,0,0,211,0,,
+7,Z POS,1504,2025-08-04 00:00:00,Z emis la POS nr.14 inchiderea 9589,5504.96,0,0,1137.78,238.93,,3688.51,405.74,,0,0,0,0,34,0,,
+8,Z POS,652,2025-08-04 00:00:00,Z emis la POS nr.12 inchiderea 9588,18484.61,0,0,12391.36,2602.19,,2921.23,321.33,,0,0,0,0,248.5,0,,
+9,Z POS,1505,2025-08-05 00:00:00,Z emis la POS nr.14 inchiderea 9591,7533.46,0,0,1745.21,366.5,,4841.67,532.58,,0,0,0,0,47.5,0,,
+10,Z POS,653,2025-08-05 00:00:00,Z emis la POS nr.12 inchiderea 9590,22892.86,0,0,16002.8,3360.59,,2903.13,319.34,,0,0,0,0,307,0,,
+11,Z POS,1506,2025-08-06 00:00:00,Z emis la POS nr.14 inchiderea 9593,7368.17,0,0,2456.58,515.88,,3915.5,430.71,,0,0,0,0,49.5,0,,
+12,Z POS,654,2025-08-06 00:00:00,Z emis la POS nr.12 inchiderea 9592,20480.9,0,0,13396.83,2813.34,,3585.79,394.44,,0,0,0,0,290.5,0,,
+13,Z POS,1507,2025-08-07 00:00:00,Z emis la POS nr.14 inchiderea 9596,6292.3,0,0,1220.67,256.34,,4295.31,472.48,,0,0,0,0,47.5,0,,
+14,Z POS,655,2025-08-07 00:00:00,Z emis la POS nr.12 inchiderea 9595,22040.02,0,0,14648.89,3076.27,,3626.45,398.91,,0,0,0,0,289.5,0,,
+15,Z POS,1508,2025-08-08 00:00:00,Z emis la POS nr.14 inchiderea 9598,6858.6,0,0,1143.19,240.07,,4893.55,538.29,,0,0,0,0,43.5,0,,
+16,Z POS,656,2025-08-08 00:00:00,Z emis la POS nr.12 inchiderea 9597,25481.92,0,0,16701.41,3507.3,,4462.35,490.86,,0,0,0,0,320,0,,
+17,Z POS,1509,2025-08-09 00:00:00,Z emis la POS nr.14 inchiderea 9600,6493.8,0,0,1734.23,364.19,,3926.92,431.96,,0,0,0,0,36.5,0,,
+18,Z POS,657,2025-08-09 00:00:00,Z emis la POS nr.12 inchiderea 9599,18755.47,0,0,12300.74,2583.16,,3269.43,359.64,,0,0,0,0,242.5,0,,

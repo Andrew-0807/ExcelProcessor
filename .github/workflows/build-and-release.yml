@@ -1,0 +1,70 @@
+# Excel Processor - GitHub Actions Workflow
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs: windows-latest
+    permissions:
+      contents: read
+      
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Set up Python Environment
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+          
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+          
+      - name: Build Application
+        run: |
+          python build.py
+          
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: executable
+          path: dist/
+          retention-days: 30
+          
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            dist/ExcelProcessor.exe
+            dist/BUILD_INFO.txt
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          tag: ${{ github.ref_name }}
+          name: Excel Processor v${{ github.ref_name }}
+          body: |
+            ## Changes in this Release
+            Automated build with latest processor updates:
+            - Updated CardCec processor to fix zip file issues
+            - Integrated Sales Transform processor
+            - Improved error handling and validation
+            
+            ## Installation
+            1. Download `ExcelProcessor.exe` from the [Assets] section
+            2. Run the installer
+            3. Application will auto-update to future versions
+            
+            ## Built from
+            - Commit: ${{ github.sha }}
+            - Python 3.12
+            - Platform: Windows

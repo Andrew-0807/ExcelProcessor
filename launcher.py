@@ -45,10 +45,10 @@ def _resource_path(relative: str) -> Path:
 
 def _load_icon() -> Image.Image:
     icon_path_candidates = [
-        Path("static") / "excel-processor-icon.ico",
-        Path("excel-processor-icon.ico"),
-        Path("static") / "Treetog-Junior-Document-excel.ico",
-        Path("Treetog-Junior-Document-excel.ico"),
+        Path("assets") / "icons" / "excel-processor-icon.ico",
+        Path("assets") / "icons" / "Treetog-Junior-Document-excel.ico",
+        Path("static") / "excel-processor-icon.ico",  # fallback for static
+        Path("static") / "Treetog-Junior-Document-excel.ico",  # fallback for static
     ]
     for candidate in icon_path_candidates:
         full_path = _resource_path(str(candidate))

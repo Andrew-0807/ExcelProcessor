@@ -1,0 +1,78 @@
+# Build artifacts
+build/
+dist/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+
+# Python package files
+*.egg
+*.egg-info/
+.installed.cfg
+*.egg
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+.env
+
+# PyInstaller specific
+*.manifest
+*.spec
+
+# Output and data directories
+main/out/
+main/in/
+borderou/main/out/
+borderou/main/in/
+borderou/out/
+borderou/output/
+borderou/output_xlsx/
+CardCec/out/
+CardCec/in/
+NewFeatureTest/
+output/
+
+# Test data and temporary files
+*.tmp
+*.bak
+*.backup
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+
+# Auto-generated files
+BUILD_INFO.txt
+opencode
+
+# Keep input data directories (but exclude their contents)
+borderou/main/in/*
+CardCec/in/*
+!borderou/main/in/.gitkeep
+!CardCec/in/.gitkeep

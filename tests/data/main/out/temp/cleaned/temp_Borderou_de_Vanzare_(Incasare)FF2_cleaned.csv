@@ -1,0 +1,23 @@
+Nr_Crt,Denumire,Nr_Doc_Z,Data,Explicatii,Total_Valoare,Scutit_Cu_Drept_Reducere,Scutit_Fara_Drept_Reducere,Taxabile_21_Baza_Impozitare,Taxabile_21_Val_TVA,Taxabile_11_Baza_Impozitare,Taxabile_11_Val_TVA,Nefolosit_1_Baza_Impozitare,Nefolosit_1_Val_TVA,Nefolosit_2_Baza_Impozitare,Nefolosit_2_Val_TVA,Netaxabil_Baza_Impozitare,Netaxabil_Val_TVA,Final_Rate
+1.0,Z POS,84.0,2025-12-01,Z emis la POS nr.1 inchiderea 83,1852.96,0,0,30.99,6.51,1633.3,179.66,0,0,0,0,2.5,0.0,0
+2.0,Z POS,85.0,2025-12-02,Z emis la POS nr.1 inchiderea 84,2894.44,0,0,29.75,6.25,2574.27,283.17,0,0,0,0,1.0,0.0,0
+3.0,Z POS,86.0,2025-12-03,Z emis la POS nr.1 inchiderea 85,2434.39,0,0,61.98,13.02,2121.97,233.42,0,0,0,0,4.0,0.0,0
+4.0,Z POS,87.0,2025-12-04,Z emis la POS nr.1 inchiderea 86,3253.85,0,0,31.4,6.6,2894.01,318.34,0,0,0,0,3.5,0.0,0
+5.0,Z POS,88.0,2025-12-05,Z emis la POS nr.1 inchiderea 87,2768.31,0,0,45.45,9.55,2441.27,268.54,0,0,0,0,3.5,0.0,0
+6.0,Z POS,89.0,2025-12-08,Z emis la POS nr.1 inchiderea 88,2379.36,0,0,32.23,6.77,2106.18,231.68,0,0,0,0,2.5,0.0,0
+7.0,Z POS,90.0,2025-12-09,Z emis la POS nr.1 inchiderea 89,2531.2,0,0,33.47,7.03,2241.17,246.53,0,0,0,0,3.0,0.0,0
+8.0,Z POS,91.0,2025-12-10,Z emis la POS nr.1 inchiderea 90,4538.06,0,0,47.11,9.89,4034.29,443.77,0,0,0,0,3.0,0.0,0
+9.0,Z POS,92.0,2025-12-11,Z emis la POS nr.1 inchiderea 91,2990.88,0,0,34.3,7.2,2654.4,291.98,0,0,0,0,3.0,0.0,0
+10.0,Z POS,93.0,2025-12-12,Z emis la POS nr.1 inchiderea 92,3367.88,0,0,51.65,10.85,2976.02,327.36,0,0,0,0,2.0,0.0,0
+11.0,Z POS,94.0,2025-12-15,Z emis la POS nr.1 inchiderea 93,3168.14,0,0,56.61,11.89,2787.96,306.68,0,0,0,0,5.0,0.0,0
+12.0,Z POS,95.0,2025-12-16,Z emis la POS nr.1 inchiderea 94,3755.98,0,0,64.05,13.45,3310.34,364.14,0,0,0,0,4.0,0.0,0
+13.0,Z POS,96.0,2025-12-17,Z emis la POS nr.1 inchiderea 95,4187.63,0,0,70.25,14.75,3692.01,406.12,0,0,0,0,4.5,0.0,0
+14.0,Z POS,97.0,2025-12-18,Z emis la POS nr.1 inchiderea 96,3806.57,0,0,31.4,6.6,3393.31,373.26,0,0,0,0,2.0,0.0,0
+15.0,Z POS,98.0,2025-12-19,Z emis la POS nr.1 inchiderea 97,3060.47,0,0,89.26,18.74,2655.83,292.14,0,0,0,0,4.5,0.0,0
+16.0,Z POS,99.0,2025-12-22,Z emis la POS nr.1 inchiderea 98,4050.06,0,0,85.12,17.88,3550.05,390.51,0,0,0,0,6.5,0.0,0
+17.0,Z POS,100.0,2025-12-23,Z emis la POS nr.1 inchiderea 99,2825.19,0,0,51.24,10.76,2486.21,273.48,0,0,0,0,3.5,0.0,0
+18.0,Z POS,101.0,2025-12-29,Z emis la POS nr.1 inchiderea 100,2700.44,0,0,32.23,6.77,2395.89,263.55,0,0,0,0,2.0,0.0,0
+19.0,Z POS,102.0,2025-12-30,Z emis la POS nr.1 inchiderea 101,2944.0,0,0,32.23,6.77,2615.32,287.68,0,0,0,0,2.0,0.0,0
+20.0,Z POS,103.0,2025-12-31,Z emis la POS nr.1 inchiderea 102,683.49,0,0,12.4,2.6,601.34,66.15,0,0,0,0,1.0,0.0,0
+,nan,,,nan,,0,0,,,,,0,0,0,0,,,0
+,nan,,,nan,,0,0,,,,,0,0,0,0,,,0

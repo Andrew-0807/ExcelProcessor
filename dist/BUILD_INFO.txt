@@ -2,9 +2,9 @@ Build Information
 ==================
 
 Application: Excel Processor
-Version: 1.2.0
-Build Date: 2026-02-10 12:32:39
+Version: 1.2.2
+Build Date: 2026-02-10 17:06:21
 Platform: Windows
-Executable Size: 51.78 MB
+Executable Size: 51.64 MB
 
 Build completed successfully!

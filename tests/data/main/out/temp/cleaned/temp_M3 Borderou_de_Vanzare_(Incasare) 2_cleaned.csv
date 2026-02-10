@@ -1,0 +1,13 @@
+Nr_Crt,Denumire,Nr_Doc_Z,Data,Explicatii,Total_Valoare,Scutit_Cu_Drept_Reducere,Scutit_Fara_Drept_Reducere,Taxabile_21_Baza_Impozitare,Taxabile_21_Val_TVA,Taxabile_11_Baza_Impozitare,Taxabile_11_Val_TVA,Nefolosit_1_Baza_Impozitare,Nefolosit_1_Val_TVA,Nefolosit_2_Baza_Impozitare,Nefolosit_2_Val_TVA,Netaxabil_Baza_Impozitare,Netaxabil_Val_TVA,Final_Rate
+19,Z POS,210,2025-11-19,Z emis la POS nr.1 inchiderea 3626,10692.81,0,0,38.84,8.16,9590.82,1054.99,0,0,0,0,0,0,0
+20,Z POS,211,2025-11-20,Z emis la POS nr.1 inchiderea 3627,11597.58,0,0,50.21,10.54,10393.54,1143.29,0,0,0,0,0,0,0
+21,Z POS,212,2025-11-21,Z emis la POS nr.1 inchiderea 3628,15231.88,0,0,59.09,12.41,13658.0,1502.38,0,0,0,0,0,0,0
+22,Z POS,213,2025-11-22,Z emis la POS nr.1 inchiderea 3629,20292.42,0,0,74.59,15.66,18200.15,2002.02,0,0,0,0,0,0,0
+23,Z POS,214,2025-11-23,Z emis la POS nr.1 inchiderea 3630,15660.42,0,0,77.69,16.31,14023.8,1542.62,0,0,0,0,0,0,0
+24,Z POS,215,2025-11-24,Z emis la POS nr.1 inchiderea 3631,8824.05,0,0,24.79,5.21,7922.57,871.48,0,0,0,0,0,0,0
+25,Z POS,216,2025-11-25,Z emis la POS nr.1 inchiderea 3632,12172.96,0,0,47.31,9.94,10915.05,1200.66,0,0,0,0,0,0,0
+26,Z POS,217,2025-11-26,Z emis la POS nr.1 inchiderea 3633,9200.25,0,0,35.33,7.42,8250.0,907.5,0,0,0,0,0,0,0
+27,Z POS,218,2025-11-27,Z emis la POS nr.1 inchiderea 3634,11385.62,0,0,46.28,9.72,10206.86,1122.76,0,0,0,0,0,0,0
+28,Z POS,219,2025-11-28,Z emis la POS nr.1 inchiderea 3635,19984.03,0,0,75.21,15.79,17921.65,1971.38,0,0,0,0,0,0,0
+29,Z POS,220,2025-11-29,Z emis la POS nr.1 inchiderea 3636,19145.38,0,0,75.83,15.92,17165.43,1888.2,0,0,0,0,0,0,0
+30,Z POS,221,2025-11-30,Z emis la POS nr.1 inchiderea 3637,15988.43,0,0,59.71,12.54,14338.9,1577.28,0,0,0,0,0,0,0

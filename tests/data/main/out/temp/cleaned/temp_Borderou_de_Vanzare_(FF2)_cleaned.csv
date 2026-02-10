@@ -1,0 +1,23 @@
+Nr_Crt,Denumire,Nr_Doc_Z,Data,Explicatii,Total_Valoare,Scutit_Cu_Drept_Reducere,Scutit_Fara_Drept_Reducere,Taxabile_21_Baza_Impozitare,Taxabile_21_Val_TVA,Taxabile_11_Baza_Impozitare,Taxabile_11_Val_TVA,Nefolosit_1_Baza_Impozitare,Nefolosit_1_Val_TVA,Nefolosit_2_Baza_Impozitare,Nefolosit_2_Val_TVA,Netaxabil_Baza_Impozitare,Netaxabil_Val_TVA,Final_Rate
+1.0,Z POS,104.0,2026-01-05,Z emis la POS nr.1 inchiderea 103,1934.91,0,0,46.69,9.81,1688.21,185.7,0,0,0,0,4.5,0.0,0
+2.0,Z POS,105.0,2026-01-06,Z emis la POS nr.1 inchiderea 104,1646.5,0,0,44.21,9.29,1432.43,157.57,0,0,0,0,3.0,0.0,0
+3.0,Z POS,106.0,2026-01-07,Z emis la POS nr.1 inchiderea 105,2154.55,0,0,27.69,5.81,1909.5,210.05,0,0,0,0,1.5,0.0,0
+4.0,Z POS,107.0,2026-01-08,Z emis la POS nr.1 inchiderea 106,2096.43,0,0,36.78,7.72,1847.23,203.2,0,0,0,0,1.5,0.0,0
+5.0,Z POS,108.0,2026-01-09,Z emis la POS nr.1 inchiderea 107,2197.15,0,0,32.64,6.86,1942.03,213.62,0,0,0,0,2.0,0.0,0
+6.0,Z POS,109.0,2026-01-12,Z emis la POS nr.1 inchiderea 108,2699.6,0,0,37.6,7.9,2387.93,262.67,0,0,0,0,3.5,0.0,0
+7.0,Z POS,110.0,2026-01-13,Z emis la POS nr.1 inchiderea 109,2432.79,0,0,63.64,13.36,2118.28,233.01,0,0,0,0,4.5,0.0,0
+8.0,Z POS,111.0,2026-01-14,Z emis la POS nr.1 inchiderea 110,2797.7,0,0,42.98,9.02,2470.0,271.7,0,0,0,0,4.0,0.0,0
+9.0,Z POS,112.0,2026-01-15,Z emis la POS nr.1 inchiderea 111,2785.97,0,0,57.85,12.15,2443.22,268.75,0,0,0,0,4.0,0.0,0
+10.0,Z POS,113.0,2026-01-16,Z emis la POS nr.1 inchiderea 112,4226.51,0,0,69.42,14.58,3729.29,410.22,0,0,0,0,3.0,0.0,0
+11.0,Z POS,114.0,2026-01-19,Z emis la POS nr.1 inchiderea 113,2750.23,0,0,40.5,8.5,2430.84,267.39,0,0,0,0,3.0,0.0,0
+12.0,Z POS,115.0,2026-01-20,Z emis la POS nr.1 inchiderea 114,2660.47,0,0,36.36,7.64,2353.58,258.89,0,0,0,0,4.0,0.0,0
+13.0,Z POS,116.0,2026-01-21,Z emis la POS nr.1 inchiderea 115,2328.47,0,0,22.31,4.69,2072.05,227.92,0,0,0,0,1.5,0.0,0
+14.0,Z POS,117.0,2026-01-22,Z emis la POS nr.1 inchiderea 116,2896.29,0,0,49.17,10.33,2552.96,280.83,0,0,0,0,3.0,0.0,0
+15.0,Z POS,118.0,2026-01-23,Z emis la POS nr.1 inchiderea 117,3701.89,0,0,68.18,14.32,3257.11,358.28,0,0,0,0,4.0,0.0,0
+16.0,Z POS,119.0,2026-01-26,Z emis la POS nr.1 inchiderea 118,2624.84,0,0,59.09,12.41,2297.15,252.69,0,0,0,0,3.5,0.0,0
+17.0,Z POS,120.0,2026-01-27,Z emis la POS nr.1 inchiderea 119,2251.67,0,0,44.21,9.29,1977.63,217.54,0,0,0,0,3.0,0.0,0
+18.0,Z POS,121.0,2026-01-28,Z emis la POS nr.1 inchiderea 120,3195.56,0,0,69.42,14.58,2798.25,307.81,0,0,0,0,5.5,0.0,0
+19.0,Z POS,122.0,2026-01-29,Z emis la POS nr.1 inchiderea 121,2915.82,0,0,25.21,5.29,2598.04,285.78,0,0,0,0,1.5,0.0,0
+20.0,Z POS,123.0,2026-01-30,Z emis la POS nr.1 inchiderea 122,2921.16,0,0,18.18,3.82,2609.6,287.06,0,0,0,0,2.5,0.0,0
+,nan,,,nan,,0,0,,,,,0,0,0,0,,,0
+,nan,,,nan,,0,0,,,,,0,0,0,0,,,0
