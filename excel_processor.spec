@@ -64,5 +64,5 @@ exe = EXE(
     upx_exclude=[],
     runtime_tmpdir=None,
     console=False,
-    icon='static/Treetog-Junior-Document-excel.ico',
+    icon='excel-processor-icon.ico',
 )
