@@ -3,6 +3,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const processBtn = document.getElementById('processBtn');
   const fileInput = document.getElementById('fileInput');
   const dropArea = document.getElementById('drop-area');
+  const helpBtn = document.getElementById('helpBtn');
+  const helpModal = document.getElementById('help-modal');
+  const modalCloseBtns = document.querySelectorAll('.modal-close, .modal-close-btn');
+  const fileList = document.getElementById('file-list');
   
   if (!processBtn || !fileInput || !dropArea) {
     console.error('Required elements not found. Make sure your HTML has elements with IDs "processBtn", "fileInput", and "drop-area"');
@@ -36,8 +40,40 @@ document.addEventListener('DOMContentLoaded', () => {
   fileInput.addEventListener('change', () => {
     if (fileInput.files.length > 0) {
       updateDropAreaText(fileInput.files.length);
+      displayFileList(fileInput.files);
     }
   });
+
+  // Help modal functionality
+  if (helpBtn && helpModal) {
+    helpBtn.addEventListener('click', () => {
+      helpModal.classList.add('show');
+      helpModal.setAttribute('aria-hidden', 'false');
+    });
+
+    // Close modal when clicking close buttons
+    modalCloseBtns.forEach(btn => {
+      btn.addEventListener('click', closeModal);
+    });
+
+    // Close modal when clicking overlay
+    const modalOverlay = helpModal.querySelector('.modal-overlay');
+    if (modalOverlay) {
+      modalOverlay.addEventListener('click', closeModal);
+    }
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && helpModal.classList.contains('show')) {
+        closeModal();
+      }
+    });
+  }
+
+  function closeModal() {
+    helpModal.classList.remove('show');
+    helpModal.setAttribute('aria-hidden', 'true');
+  }
 
   function preventDefaults(e) {
     e.preventDefault();
@@ -57,17 +93,55 @@ document.addEventListener('DOMContentLoaded', () => {
     const files = dt.files;
     fileInput.files = files;
     updateDropAreaText(files.length);
+    displayFileList(files);
   }
 
   function updateDropAreaText(fileCount) {
-    const p = dropArea.querySelector('p');
+    const mainText = dropArea.querySelector('.main-text');
+    const subText = dropArea.querySelector('.sub-text');
+    
     if (fileCount === 1) {
-      p.textContent = `1 file selected - Ready to process!`;
+      mainText.textContent = `1 file selected - Ready to process!`;
+      subText.textContent = 'Click to add more files or change selection';
     } else if (fileCount > 1) {
-      p.textContent = `${fileCount} files selected - Ready to process!`;
+      mainText.textContent = `${fileCount} files selected - Ready to process!`;
+      subText.textContent = 'Click to add more files or change selection';
     } else {
-      p.textContent = 'Drag & Drop your files here';
+      mainText.textContent = 'Drag & Drop your files here';
+      subText.textContent = 'or click to browse';
     }
+  }
+
+  function displayFileList(files) {
+    if (!fileList) return;
+    
+    fileList.innerHTML = '';
+    
+    Array.from(files).forEach(file => {
+      const fileItem = document.createElement('div');
+      fileItem.className = 'file-item';
+      fileItem.setAttribute('role', 'listitem');
+      
+      const fileName = document.createElement('span');
+      fileName.className = 'file-name';
+      fileName.textContent = file.name;
+      
+      const fileSize = document.createElement('span');
+      fileSize.className = 'file-size';
+      fileSize.textContent = formatFileSize(file.size);
+      
+      fileItem.appendChild(fileName);
+      fileItem.appendChild(fileSize);
+      fileList.appendChild(fileItem);
+    });
+  }
+
+  function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
 
   processBtn.addEventListener('click', () => {
@@ -76,13 +150,13 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('Processing files...');
     
     if (!files.length) {
-      alert('Please select a file.');
+      showMessage('Please select a file.', 'error');
       return;
     }
   
     // Show loading state
-    const originalText = processBtn.textContent;
-    processBtn.innerHTML = '<span class="loading"></span> Processing...';
+    const originalContent = processBtn.innerHTML;
+    processBtn.classList.add('loading');
     processBtn.disabled = true;
   
     const formData = new FormData();
@@ -131,31 +205,32 @@ document.addEventListener('DOMContentLoaded', () => {
     })
     .catch(err => {
       console.error('Error processing file:', err);
-      alert('Error processing file: ' + err.message);
       showMessage('Error processing files. Please try again.', 'error');
     })
     .finally(() => {
       // Reset button state
-      processBtn.textContent = originalText;
+      processBtn.classList.remove('loading');
+      processBtn.innerHTML = originalContent;
       processBtn.disabled = false;
     });
   });
 
   function showMessage(text, type) {
     // Remove any existing messages
-    const existingMessage = document.querySelector('.message');
-    if (existingMessage) {
-      existingMessage.remove();
-    }
+    const existingMessages = document.querySelectorAll('.message');
+    existingMessages.forEach(msg => msg.remove());
 
     // Create new message element
     const message = document.createElement('div');
     message.className = `message ${type}`;
     message.textContent = text;
+    message.setAttribute('role', 'alert');
     
-    // Insert after the mode selection
-    const modeSelection = document.querySelector('.mode-selection');
-    modeSelection.parentNode.insertBefore(message, modeSelection.nextSibling);
+    // Insert into message container
+    const messageContainer = document.getElementById('message-container');
+    if (messageContainer) {
+      messageContainer.appendChild(message);
+    }
     
     // Auto-remove after 5 seconds
     setTimeout(() => {
