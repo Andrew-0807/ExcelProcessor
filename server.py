@@ -3,8 +3,9 @@ import pandas as pd
 import io
 import os
 import sys
+import tempfile
 import traceback
-import zipfile  # Add this import
+import zipfile
 from app_info import __version__
 
 try:
@@ -65,6 +66,7 @@ def process_file():
     try:
         outputs: list[io.BytesIO] = []
         filenames: list[str] = []
+        errors: list[str] = []
         for file in files:
             # Check if the file has a valid Excel extension
             if not _valid_excel(file.filename):
@@ -97,10 +99,19 @@ def process_file():
                     result_df = processor.process_dataframe(df)
                 elif process_type == "borderou":
                     # Handle borderou processing - save file temporarily and process through pipeline
-                    temp_file_path = f"temp_{file.filename}"
-                    with open(temp_file_path, "wb") as temp_file:
-                        file.seek(0)
-                        temp_file.write(file.read())
+                    fd, temp_file_path = tempfile.mkstemp(suffix=".xlsx")
+                    fd_closed = False
+                    try:
+                        with os.fdopen(fd, "wb") as temp_file:
+                            fd_closed = True  # os.fdopen takes ownership of fd
+                            file.seek(0)
+                            temp_file.write(file.read())
+                    except Exception:
+                        if not fd_closed:
+                            os.close(fd)
+                        if os.path.exists(temp_file_path):
+                            os.remove(temp_file_path)
+                        raise
 
                     try:
                         pipeline = BorderouPipeline()
@@ -133,11 +144,20 @@ def process_file():
                         if os.path.exists(temp_file_path):
                             os.remove(temp_file_path)
                 elif process_type == "cardcec":
-                    # Save the uploaded file temporarily with original path structure
-                    temp_file_path = f"temp_{file.filename}"
-                    with open(temp_file_path, "wb") as temp_file:
-                        file.seek(0)
-                        temp_file.write(file.read())
+                    # Save the uploaded file temporarily with unique name
+                    fd, temp_file_path = tempfile.mkstemp(suffix=".xlsx")
+                    fd_closed = False
+                    try:
+                        with os.fdopen(fd, "wb") as temp_file:
+                            fd_closed = True  # os.fdopen takes ownership of fd
+                            file.seek(0)
+                            temp_file.write(file.read())
+                    except Exception:
+                        if not fd_closed:
+                            os.close(fd)
+                        if os.path.exists(temp_file_path):
+                            os.remove(temp_file_path)
+                        raise
 
                     try:
                         # Create CSV directory structure like the original expects
@@ -186,10 +206,20 @@ def process_file():
                 processed_filename = f"{process_type} - {original_filename}"
                 filenames.append(processed_filename)
             except Exception as e:
-                print(f"Error reading {file.filename}: {e}")
+                error_msg = f"Error processing {file.filename}: {e}"
+                print(error_msg)
+                traceback.print_exc()
+                errors.append(error_msg)
                 continue
 
         # These lines should be OUTSIDE the for loop!
+        if not outputs and errors:
+            error_detail = "\n".join(errors)
+            return f"Processing failed for all files:\n{error_detail}", 500
+
+        if not outputs:
+            return "No valid files were provided for processing.", 400
+
         if len(outputs) == 1:
             return send_file(outputs[0], download_name=filenames[0], as_attachment=True)
 

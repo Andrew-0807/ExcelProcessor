@@ -69,7 +69,9 @@ desktop.ini
 
 # Auto-generated files
 BUILD_INFO.txt
-opencode
+# OpenCode
+.opencode/
+opencode.json
 
 # Keep input data directories (but exclude their contents)
 borderou/main/in/*

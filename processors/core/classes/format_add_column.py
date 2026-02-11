@@ -6,6 +6,7 @@ import sys
 
 from classes.excel_processor import ExcelProcessor
 
+
 class FormatAddColumn(ExcelProcessor):
     def __init__(self):
         super().__init__(input_folder="C:/in/format", output_folder="C:/out/format")
@@ -18,24 +19,60 @@ class FormatAddColumn(ExcelProcessor):
 
         try:
             # Format date columns
-            date_columns = ['Data NIR', 'Data']
+            date_columns = ["Data NIR", "Data"]
             for col in date_columns:
                 if col in df.columns:
-                    df[col] = pd.to_datetime(df[col], errors='coerce').dt.strftime('%d/%m/%Y')
+                    original_values = df[col].copy()
+                    parsed_dates = pd.to_datetime(df[col], errors="coerce")
+                    coerced_mask = (
+                        parsed_dates.isna()
+                        & original_values.notna()
+                        & (original_values.astype(str).str.strip() != "")
+                    )
+                    coerced_count = coerced_mask.sum()
+                    if coerced_count > 0:
+                        bad_rows = df.index[coerced_mask].tolist()[:5]
+                        bad_vals = original_values[coerced_mask].head(5).tolist()
+                        print(
+                            f"⚠️ WARNING: {coerced_count} unparseable dates in column '{col}' were lost. "
+                            f"Rows (first 5): {bad_rows}, Values: {bad_vals}"
+                        )
+                    df[col] = parsed_dates.dt.strftime("%d/%m/%Y")
 
             # Format numeric columns
-            numeric_columns = ['Valoare Achizitie', 'TVVAaloare Diferenta', 'Adaos', 'Valoare TVA.1']
+            numeric_columns = [
+                "Valoare Achizitie",
+                "TVVAaloare Diferenta",
+                "Adaos",
+                "Valoare TVA.1",
+            ]
             for col in numeric_columns:
                 if col in df.columns:
-                    df[col] = pd.to_numeric(df[col], errors='coerce')
+                    original_values = df[col].copy()
+                    df[col] = pd.to_numeric(df[col], errors="coerce")
+                    coerced_mask = (
+                        df[col].isna()
+                        & original_values.notna()
+                        & (original_values.astype(str).str.strip() != "")
+                    )
+                    coerced_count = coerced_mask.sum()
+                    if coerced_count > 0:
+                        bad_rows = df.index[coerced_mask].tolist()[:5]  # Show first 5
+                        bad_vals = original_values[coerced_mask].head(5).tolist()
+                        print(
+                            f"⚠️ WARNING: {coerced_count} non-numeric values in column '{col}' were converted to 0. "
+                            f"Rows (first 5): {bad_rows}, Values: {bad_vals}"
+                        )
                     df[col] = df[col].fillna(0).round(2)
 
             # Format currency columns
-            currency_columns = ['Valoare Achizitie', 'TVVAaloare Diferenta']
+            currency_columns = ["Valoare Achizitie", "TVVAaloare Diferenta"]
             for col in currency_columns:
                 if col in df.columns:
                     df[col] = df[col].apply(
-                        lambda x: '{:,.2f}'.format(float(x)) if pd.notnull(x) and not isinstance(x, str) else x
+                        lambda x: "{:,.2f}".format(float(x))
+                        if pd.notnull(x) and not isinstance(x, str)
+                        else x
                     )
             return df
         except Exception as e:
@@ -49,10 +86,12 @@ class FormatAddColumn(ExcelProcessor):
             return None
 
         try:
-            df['TVVAaloare Diferenta'] = df['TVVAaloare Diferenta'].replace(r'^\s*$', np.nan, regex=True)
-            mask = df['TVVAaloare Diferenta'].isna()
-            df.loc[mask, 'TVVAaloare Diferenta'] = df.loc[mask, 'Unnamed: 10']
-            df.drop(columns=['Unnamed: 10'], inplace=True)
+            df["TVVAaloare Diferenta"] = df["TVVAaloare Diferenta"].replace(
+                r"^\s*$", np.nan, regex=True
+            )
+            mask = df["TVVAaloare Diferenta"].isna()
+            df.loc[mask, "TVVAaloare Diferenta"] = df.loc[mask, "Unnamed: 10"]
+            df.drop(columns=["Unnamed: 10"], inplace=True)
             return df
         except Exception as e:
             print(f"Error in fix_column: {e}")
@@ -62,7 +101,7 @@ class FormatAddColumn(ExcelProcessor):
     def correct_format(value):
         """Fix formatting (e.g., %0.09 → %9)"""
         try:
-            num = pd.to_numeric(str(value).replace("%", ""), errors='coerce')
+            num = pd.to_numeric(str(value).replace("%", ""), errors="coerce")
             if pd.notna(num) and num < 1:
                 num = int(num * 100)
             return f"%{int(num)}" if pd.notna(num) else None
@@ -75,8 +114,17 @@ class FormatAddColumn(ExcelProcessor):
             print("Warning: DataFrame is None in drop_columns")
             return None
 
-        dropcol = ["NIR","Data NIR", "Adaos Proc", "Procent TVA", "Numar Aviz", "Data Aviz",
-                  "TVA Achizitie", "% TVA Ach", "TVAACH"]
+        dropcol = [
+            "NIR",
+            "Data NIR",
+            "Adaos Proc",
+            "Procent TVA",
+            "Numar Aviz",
+            "Data Aviz",
+            "TVA Achizitie",
+            "% TVA Ach",
+            "TVAACH",
+        ]
         try:
             for col in dropcol:
                 if col in df.columns:
@@ -93,20 +141,26 @@ class FormatAddColumn(ExcelProcessor):
             return None
 
         try:
-            if '% TVA VANZARE' not in df.columns:
+            if "% TVA VANZARE" not in df.columns:
                 print("Error: Column '% TVA VANZARE' not found")
                 return None
 
             df = df.copy()
-            df['% TVA VANZARE'] = df['% TVA VANZARE'].apply(self.correct_format)
-            df = df.dropna(subset=['% TVA VANZARE'])
+            df["% TVA VANZARE"] = df["% TVA VANZARE"].apply(self.correct_format)
+            df = df.dropna(subset=["% TVA VANZARE"])
 
-            df.loc[:, 'Numeric_TVA'] = df['% TVA VANZARE'].str.extract(r'(\d+)')[0].astype(float)
-            df = df.sort_values(by='Numeric_TVA', ascending=True).drop(columns=['Numeric_TVA'])
+            df.loc[:, "Numeric_TVA"] = (
+                df["% TVA VANZARE"].str.extract(r"(\d+)")[0].astype(float)
+            )
+            df = df.sort_values(by="Numeric_TVA", ascending=True).drop(
+                columns=["Numeric_TVA"]
+            )
 
-            unique_values = df['% TVA VANZARE'].unique()
-            split_dfs = {value: df[df['% TVA VANZARE'] == value].reset_index(drop=True)
-                        for value in unique_values}
+            unique_values = df["% TVA VANZARE"].unique()
+            split_dfs = {
+                value: df[df["% TVA VANZARE"] == value].reset_index(drop=True)
+                for value in unique_values
+            }
             return split_dfs
         except Exception as e:
             print(f"Error in split_by_tva_vanzare: {e}")
@@ -130,33 +184,59 @@ class FormatAddColumn(ExcelProcessor):
             for key, split_df in split_dfs.items():
                 try:
                     if key == "%19":
-                        achf19 = split_df['Valoare Achizitie'].str.replace(',', '').astype(float).sum()
+                        achf19 = (
+                            split_df["Valoare Achizitie"]
+                            .str.replace(",", "")
+                            .astype(float)
+                            .sum()
+                        )
                         achtva19 = achf19 * 0.19
-                        vzf19 = split_df['Valoare TVA.1'].astype(float).sum() / 0.19
-                        vztva19 = split_df['Valoare TVA.1'].astype(float).sum()
-                        adaos19 = split_df['Adaos'].astype(float).sum()
-                        summary_data.append([key, achf19, achtva19, vzf19, vztva19, adaos19])
+                        vzf19 = split_df["Valoare TVA.1"].astype(float).sum() / 0.19
+                        vztva19 = split_df["Valoare TVA.1"].astype(float).sum()
+                        adaos19 = split_df["Adaos"].astype(float).sum()
+                        summary_data.append(
+                            [key, achf19, achtva19, vzf19, vztva19, adaos19]
+                        )
                     elif key == "%9":
-                        achf9 = split_df['Valoare Achizitie'].str.replace(',', '').astype(float).sum()
+                        achf9 = (
+                            split_df["Valoare Achizitie"]
+                            .str.replace(",", "")
+                            .astype(float)
+                            .sum()
+                        )
                         achtva9 = achf9 * 0.09
-                        vzf9 = split_df['Valoare TVA.1'].astype(float).sum() / 0.09
-                        vztva9 = split_df['Valoare TVA.1'].astype(float).sum()
-                        adaos9 = split_df['Adaos'].astype(float).sum()
+                        vzf9 = split_df["Valoare TVA.1"].astype(float).sum() / 0.09
+                        vztva9 = split_df["Valoare TVA.1"].astype(float).sum()
+                        adaos9 = split_df["Adaos"].astype(float).sum()
                         summary_data.append([key, achf9, achtva9, vzf9, vztva9, adaos9])
                     elif key == "%21":
-                        achf21 = split_df['Valoare Achizitie'].str.replace(',', '').astype(float).sum()
+                        achf21 = (
+                            split_df["Valoare Achizitie"]
+                            .str.replace(",", "")
+                            .astype(float)
+                            .sum()
+                        )
                         achtva21 = achf21 * 0.21
-                        vzf21 = split_df['Valoare TVA.1'].astype(float).sum() / 0.21
-                        vztva21 = split_df['Valoare TVA.1'].astype(float).sum()
-                        adaos21 = split_df['Adaos'].astype(float).sum()
-                        summary_data.append([key, achf21, achtva21, vzf21, vztva21, adaos21])
+                        vzf21 = split_df["Valoare TVA.1"].astype(float).sum() / 0.21
+                        vztva21 = split_df["Valoare TVA.1"].astype(float).sum()
+                        adaos21 = split_df["Adaos"].astype(float).sum()
+                        summary_data.append(
+                            [key, achf21, achtva21, vzf21, vztva21, adaos21]
+                        )
                     elif key == "%11":
-                        achf11 = split_df['Valoare Achizitie'].str.replace(',', '').astype(float).sum()
+                        achf11 = (
+                            split_df["Valoare Achizitie"]
+                            .str.replace(",", "")
+                            .astype(float)
+                            .sum()
+                        )
                         achtva11 = achf11 * 0.11
-                        vzf11 = split_df['Valoare TVA.1'].astype(float).sum() / 0.11
-                        vztva11 = split_df['Valoare TVA.1'].astype(float).sum()
-                        adaos11 = split_df['Adaos'].astype(float).sum()
-                        summary_data.append([key, achf11, achtva11, vzf11, vztva11, adaos11])
+                        vzf11 = split_df["Valoare TVA.1"].astype(float).sum() / 0.11
+                        vztva11 = split_df["Valoare TVA.1"].astype(float).sum()
+                        adaos11 = split_df["Adaos"].astype(float).sum()
+                        summary_data.append(
+                            [key, achf11, achtva11, vzf11, vztva11, adaos11]
+                        )
                 except Exception as e:
                     print(f"Error processing summary for {key}: {e}")
                     continue
@@ -168,15 +248,19 @@ class FormatAddColumn(ExcelProcessor):
             # Create the summary DataFrame with its own headers
             summary_df = pd.DataFrame(
                 summary_data,
-                columns=['% TVA VANZARE', 'Total Valoare Achizitie',
-                        'Total Valoare Achizitie TVA', 'Total Valoare Vanzare',
-                        'Total Valoare Vanzare TVA', 'Total Adaos']
+                columns=[
+                    "% TVA VANZARE",
+                    "Total Valoare Achizitie",
+                    "Total Valoare Achizitie TVA",
+                    "Total Valoare Vanzare",
+                    "Total Valoare Vanzare TVA",
+                    "Total Adaos",
+                ],
             )
 
             # Create empty rows for spacing (3 rows like original)
             empty_rows = pd.DataFrame(
-                [[""] * len(merged_df.columns)] * 3,
-                columns=merged_df.columns
+                [[""] * len(merged_df.columns)] * 3, columns=merged_df.columns
             )
 
             # Create the summary table headers row
@@ -187,12 +271,14 @@ class FormatAddColumn(ExcelProcessor):
             summary_headers[3] = "Total Valoare Vanzare"
             summary_headers[4] = "Total Valoare Vanzare TVA"
             summary_headers[5] = "Total Adaos"
-            
-            summary_headers_df = pd.DataFrame([summary_headers], columns=merged_df.columns)
+
+            summary_headers_df = pd.DataFrame(
+                [summary_headers], columns=merged_df.columns
+            )
 
             # Convert summary_df to have the same number of columns as merged_df
             summary_with_padding = pd.DataFrame(columns=merged_df.columns)
-            
+
             # Add the summary data to the first few columns
             for i, (_, row) in enumerate(summary_df.iterrows()):
                 new_row = [""] * len(merged_df.columns)
@@ -203,14 +289,14 @@ class FormatAddColumn(ExcelProcessor):
                 summary_with_padding.loc[i] = new_row
 
             # Combine everything: main data + empty rows + summary headers + summary data
-            final_df = pd.concat([
-                merged_df,
-                empty_rows,
-                summary_headers_df,
-                summary_with_padding
-            ], ignore_index=True)
+            final_df = pd.concat(
+                [merged_df, empty_rows, summary_headers_df, summary_with_padding],
+                ignore_index=True,
+            )
 
-            print(f"✅ DataFrame created with {len(merged_df)} data rows and {len(summary_with_padding)} summary rows")
+            print(
+                f"✅ DataFrame created with {len(merged_df)} data rows and {len(summary_with_padding)} summary rows"
+            )
             return final_df
 
         except Exception as e:
@@ -253,7 +339,7 @@ class FormatAddColumn(ExcelProcessor):
         results = {}
 
         for file in os.listdir(self.input_folder):
-            if file.endswith('.xlsx'):
+            if file.endswith(".xlsx"):
                 print(f"Processing file: {file}")
                 df = self.load_excel(os.path.join(self.input_folder, file))
 
@@ -270,10 +356,11 @@ class FormatAddColumn(ExcelProcessor):
 
         return results
 
+
 if __name__ == "__main__":
     processor = FormatAddColumn()
     results = processor.process_files()
-    
+
     # Example: Access the result DataFrame for a specific file
     for filename, dataframe in results.items():
         print(f"\nFile: {filename}")
