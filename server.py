@@ -8,24 +8,55 @@ import traceback
 import zipfile
 from app_info import __version__
 
-try:
-    # Import processor modules
-    from processors.core.classes.valoare_sgr import SGRValueProcessor
-    from processors.core.classes.valoare_minus import ValoareMinus
-    from processors.core.classes.format_add_column import FormatAddColumn
-    from processors.core.classes.excel_data_extractor import ExcelDataExtractor
+# Add processor paths so relative imports (e.g. 'from classes.xxx') work
+_base = os.path.dirname(os.path.abspath(__file__))
+for _subpath in [
+    os.path.join(_base, "processors", "core"),
+    os.path.join(_base, "processors", "borderou"),
+    os.path.join(_base, "processors", "cardcec"),
+    os.path.join(_base, "processors", "sales_transform"),
+]:
+    if _subpath not in sys.path:
+        sys.path.insert(0, _subpath)
 
-    # Import new processing modules
+# Import processor modules — each in its own try/except so one failure doesn't kill the rest
+try:
+    from processors.core.classes.valoare_sgr import SGRValueProcessor
+except Exception as e:
+    print(f"Error importing SGRValueProcessor: {e}")
+
+try:
+    from processors.core.classes.valoare_minus import ValoareMinus
+except Exception as e:
+    print(f"Error importing ValoareMinus: {e}")
+
+try:
+    from processors.core.classes.format_add_column import FormatAddColumn
+except Exception as e:
+    print(f"Error importing FormatAddColumn: {e}")
+
+try:
+    from processors.core.classes.excel_data_extractor import ExcelDataExtractor
+except Exception as e:
+    print(f"Error importing ExcelDataExtractor: {e}")
+
+try:
     from processors.borderou.main import BorderouPipeline
+except Exception as e:
+    print(f"Error importing BorderouPipeline: {e}")
+
+try:
     from processors.cardcec.CardCec.pos_processor import (
         process_pos_file,
         detect_pos_type,
     )
+except Exception as e:
+    print(f"Error importing CardCec processors: {e}")
 
-    # Import sales transform module
+try:
     from processors.sales_transform.sales_transform import SalesTransformProcessor
 except Exception as e:
-    print(f"Error importing modules: {str(e)}")
+    print(f"Error importing SalesTransformProcessor: {e}")
 
 # Get the base path for templates and static files
 # This handles both normal execution and PyInstaller frozen execution
