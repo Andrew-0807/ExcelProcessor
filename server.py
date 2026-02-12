@@ -206,22 +206,64 @@ def process_file():
                 processed_filename = f"{process_type} - {original_filename}"
                 filenames.append(processed_filename)
             except Exception as e:
+                # Log full traceback to server console for debugging
+                tb = traceback.format_exc()
                 error_msg = f"Error processing {file.filename}: {e}"
-                print(error_msg)
-                traceback.print_exc()
-                errors.append(error_msg)
+                print(f"\n{'=' * 60}")
+                print(f"ERROR: {error_msg}")
+                print(tb)
+                print(f"{'=' * 60}\n")
+                errors.append({"file": file.filename, "error": str(e), "traceback": tb})
                 continue
 
         # These lines should be OUTSIDE the for loop!
-        if not outputs and errors:
-            error_detail = "\n".join(errors)
-            return f"Processing failed for all files:\n{error_detail}", 500
-
         if not outputs:
+            if errors:
+                # Return JSON with full debug info so JS console can show it
+                from flask import jsonify
+
+                return jsonify(
+                    {
+                        "status": "error",
+                        "message": f"Processing failed for {len(errors)} file(s)",
+                        "errors": errors,
+                    }
+                ), 500
             return "No valid files were provided for processing.", 400
 
+        # If some files succeeded but others failed, include warnings as a header
+        response_obj = None
+        # If some files succeeded but others failed, include warnings as a header
+        response_obj = None
         if len(outputs) == 1:
-            return send_file(outputs[0], download_name=filenames[0], as_attachment=True)
+            response_obj = send_file(
+                outputs[0], download_name=filenames[0], as_attachment=True
+            )
+        else:
+            # If multiple files, zip them
+            zip_buffer = io.BytesIO()
+            with zipfile.ZipFile(zip_buffer, "w") as zipf:
+                for output, fname in zip(outputs, filenames):
+                    output.seek(0)
+                    zipf.writestr(fname, output.read())
+            zip_buffer.seek(0)
+            response_obj = send_file(
+                zip_buffer,
+                download_name="processed_files.zip",
+                as_attachment=True,
+                mimetype="application/zip",
+            )
+
+        # Attach error warnings as a header so JS can log them to console
+        if errors:
+            import json
+
+            error_summary = json.dumps(
+                [{"file": e["file"], "error": e["error"]} for e in errors]
+            )
+            response_obj.headers["X-Processing-Warnings"] = error_summary
+
+        return response_obj
 
         # If multiple files, zip them
         zip_buffer = io.BytesIO()

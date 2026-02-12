@@ -171,7 +171,49 @@ document.addEventListener('DOMContentLoaded', () => {
       body: formData
     })
     .then(response => {
-      if (!response.ok) throw new Error('Network response was not OK');
+      // Check for partial-success warnings in header
+      const warnings = response.headers.get('X-Processing-Warnings');
+      if (warnings) {
+        try {
+          const warningList = JSON.parse(warnings);
+          console.warn('%c[ExcelProcessor] Some files had errors:', 'color: orange; font-weight: bold;');
+          warningList.forEach(w => {
+            console.warn(`  File: ${w.file} — Error: ${w.error}`);
+          });
+        } catch (e) {
+          console.warn('[ExcelProcessor] Processing warnings:', warnings);
+        }
+      }
+
+      if (!response.ok) {
+        // Try to read the error body as JSON for debug info
+        const contentType = response.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+          return response.json().then(errData => {
+            console.error('%c[ExcelProcessor] Processing FAILED', 'color: red; font-weight: bold;');
+            console.error('Status:', response.status, response.statusText);
+            console.error('Message:', errData.message);
+            if (errData.errors) {
+              errData.errors.forEach((err, i) => {
+                console.group(`Error ${i + 1}: ${err.file}`);
+                console.error('Error:', err.error);
+                if (err.traceback) {
+                  console.error('Traceback:\n' + err.traceback);
+                }
+                console.groupEnd();
+              });
+            }
+            throw new Error(errData.message || 'Processing failed');
+          });
+        } else {
+          return response.text().then(text => {
+            console.error('%c[ExcelProcessor] Processing FAILED', 'color: red; font-weight: bold;');
+            console.error('Status:', response.status, response.statusText);
+            console.error('Response:', text);
+            throw new Error(text || 'Processing failed');
+          });
+        }
+      }
       
       // Extract filename from Content-Disposition header
       const disposition = response.headers.get('Content-Disposition');
@@ -204,8 +246,8 @@ document.addEventListener('DOMContentLoaded', () => {
       showMessage('Files processed successfully!', 'success');
     })
     .catch(err => {
-      console.error('Error processing file:', err);
-      showMessage('Error processing files. Please try again.', 'error');
+      console.error('[ExcelProcessor] Error:', err);
+      showMessage('Error: ' + err.message + ' (check browser console F12 for details)', 'error');
     })
     .finally(() => {
       // Reset button state
