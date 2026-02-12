@@ -33,30 +33,32 @@ def _validate_tva_detection(data_rows, col_idx, expected_rate, label, base_col_i
             continue
 
     if checked_count == 0:
-        logger.warning(f"⚠️ {label}: Could not validate — no usable numeric rows found")
+        logger.warning(
+            f"[WARN] {label}: Could not validate — no usable numeric rows found"
+        )
         return True  # Can't disprove, so accept
 
     if checked_count < 3:
         logger.warning(
-            f"⚠️ {label}: Only {checked_count} rows available — too few for reliable validation"
+            f"[WARN] {label}: Only {checked_count} rows available — too few for reliable validation"
         )
         return True  # Defer to detection heuristic
 
     ratio = valid_count / checked_count
     if ratio < 0.7:  # Less than 70% of rows match the expected rate
         logger.error(
-            f"🔴 {label} VALIDATION FAILED: Only {valid_count}/{checked_count} rows "
+            f"[ERROR] {label} VALIDATION FAILED: Only {valid_count}/{checked_count} rows "
             f"match expected rate {expected_rate:.0%}. Column index {col_idx} is likely WRONG. "
             f"Output data may be INCORRECT!"
         )
         print(
-            f"🔴 {label} VALIDATION FAILED: Only {valid_count}/{checked_count} rows "
+            f"[ERROR] {label} VALIDATION FAILED: Only {valid_count}/{checked_count} rows "
             f"match expected rate {expected_rate:.0%}. Column index {col_idx} is likely WRONG!"
         )
         return False
     else:
         logger.info(
-            f"✅ {label} validated: {valid_count}/{checked_count} rows match rate {expected_rate:.0%}"
+            f"[OK] {label} validated: {valid_count}/{checked_count} rows match rate {expected_rate:.0%}"
         )
         return True
 
@@ -261,11 +263,11 @@ def transform_borderou_csv(input_file_path, output_file_path=None):
 
     if not tva_21_valid or not tva_11_valid:
         logger.error(
-            "🔴 COLUMN DETECTION VALIDATION FAILED — output data may be incorrect! "
+            "[ERROR] COLUMN DETECTION VALIDATION FAILED — output data may be incorrect! "
             "Review the input file format for changes."
         )
         print(
-            "🔴 WARNING: Column detection validation failed! "
+            "[ERROR] WARNING: Column detection validation failed! "
             "The input file format may have changed. Check output carefully!"
         )
 

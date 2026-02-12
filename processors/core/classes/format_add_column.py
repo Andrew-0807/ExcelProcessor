@@ -34,7 +34,7 @@ class FormatAddColumn(ExcelProcessor):
                         bad_rows = df.index[coerced_mask].tolist()[:5]
                         bad_vals = original_values[coerced_mask].head(5).tolist()
                         print(
-                            f"⚠️ WARNING: {coerced_count} unparseable dates in column '{col}' were lost. "
+                            f"[WARN] {coerced_count} unparseable dates in column '{col}' were lost. "
                             f"Rows (first 5): {bad_rows}, Values: {bad_vals}"
                         )
                     df[col] = parsed_dates.dt.strftime("%d/%m/%Y")
@@ -60,7 +60,7 @@ class FormatAddColumn(ExcelProcessor):
                         bad_rows = df.index[coerced_mask].tolist()[:5]  # Show first 5
                         bad_vals = original_values[coerced_mask].head(5).tolist()
                         print(
-                            f"⚠️ WARNING: {coerced_count} non-numeric values in column '{col}' were converted to 0. "
+                            f"[WARN] {coerced_count} non-numeric values in column '{col}' were converted to 0. "
                             f"Rows (first 5): {bad_rows}, Values: {bad_vals}"
                         )
                     df[col] = df[col].fillna(0).round(2)
@@ -86,12 +86,23 @@ class FormatAddColumn(ExcelProcessor):
             return None
 
         try:
+            if "TVVAaloare Diferenta" not in df.columns:
+                print(
+                    "  [fix_column] 'TVVAaloare Diferenta' not found — skipping fix_column"
+                )
+                return df
+
             df["TVVAaloare Diferenta"] = df["TVVAaloare Diferenta"].replace(
                 r"^\s*$", np.nan, regex=True
             )
-            mask = df["TVVAaloare Diferenta"].isna()
-            df.loc[mask, "TVVAaloare Diferenta"] = df.loc[mask, "Unnamed: 10"]
-            df.drop(columns=["Unnamed: 10"], inplace=True)
+
+            if "Unnamed: 10" in df.columns:
+                mask = df["TVVAaloare Diferenta"].isna()
+                df.loc[mask, "TVVAaloare Diferenta"] = df.loc[mask, "Unnamed: 10"]
+                df.drop(columns=["Unnamed: 10"], inplace=True)
+            else:
+                print("  [fix_column] 'Unnamed: 10' not found — skipping fallback fill")
+
             return df
         except Exception as e:
             print(f"Error in fix_column: {e}")
@@ -295,13 +306,64 @@ class FormatAddColumn(ExcelProcessor):
             )
 
             print(
-                f"✅ DataFrame created with {len(merged_df)} data rows and {len(summary_with_padding)} summary rows"
+                f"[OK] DataFrame created with {len(merged_df)} data rows and {len(summary_with_padding)} summary rows"
             )
             return final_df
 
         except Exception as e:
             print(f"Error in merge_splits_with_clean_summary: {e}")
             return None
+
+    def _normalize_columns(self, df):
+        """Normalize column names to handle merged Excel headers and index shifts.
+
+        The input Excel files sometimes have merged cells that produce combined
+        column names like 'Valoare Achizitie Cu TVVAaloare Diferenta' instead of
+        two separate columns. This method detects and fixes such issues.
+        """
+        rename_map = {}
+
+        # Fix merged header: 'Valoare Achizitie Cu TVVAaloare Diferenta' -> split into two
+        merged_col = None
+        for col in df.columns:
+            if (
+                "TVVAaloare Diferenta" in str(col)
+                and str(col) != "TVVAaloare Diferenta"
+            ):
+                merged_col = col
+                break
+
+        if merged_col is not None and "TVVAaloare Diferenta" not in df.columns:
+            merged_idx = df.columns.get_loc(merged_col)
+            rename_map[merged_col] = "Valoare Achizitie Cu TVA"
+            # The next column (Unnamed: N) is the actual TVVAaloare Diferenta
+            if merged_idx + 1 < len(df.columns):
+                next_col = df.columns[merged_idx + 1]
+                if str(next_col).startswith("Unnamed:"):
+                    rename_map[next_col] = "TVVAaloare Diferenta"
+                    print(
+                        f"  [normalize] Split merged header: '{merged_col}' -> 'Valoare Achizitie Cu TVA' + '{next_col}' -> 'TVVAaloare Diferenta'"
+                    )
+
+        # Fix 'Data Document' -> 'Data' (some exports use different name)
+        if "Data Document" in df.columns and "Data" not in df.columns:
+            rename_map["Data Document"] = "Data"
+            print(f"  [normalize] Renamed 'Data Document' -> 'Data'")
+
+        # Fix Unnamed index shift: if 'Unnamed: 10' is expected but only 'Unnamed: 9' exists
+        if (
+            "Unnamed: 10" not in df.columns
+            and "Unnamed: 9" in df.columns
+            and "Unnamed: 9" not in rename_map
+        ):
+            rename_map["Unnamed: 9"] = "Unnamed: 10"
+            print(f"  [normalize] Renamed 'Unnamed: 9' -> 'Unnamed: 10'")
+
+        if rename_map:
+            df = df.rename(columns=rename_map)
+            print(f"  [normalize] Applied {len(rename_map)} column renames")
+
+        return df
 
     def process_dataframe(self, df):
         """Process a single DataFrame and return the result with summary"""
@@ -310,6 +372,10 @@ class FormatAddColumn(ExcelProcessor):
             return None
 
         try:
+            # Normalize column names before processing
+            df = self._normalize_columns(df)
+            print(f"  [debug] Columns after normalization: {list(df.columns)}")
+
             df = self.format_data(df)
             if df is None:
                 return None
