@@ -83,3 +83,19 @@ CardCec/in/*
 tmp/
 
 models
+*.pkg
+
+# Node
+node_modules/
+package.json
+package-lock.json
+
+# IDE / AI tool configs (local only)
+.trae/
+.windsurf/
+.agent/
+.github/prompts/
+.github/skills/
+
+# Project planning (local only)
+openspec/
