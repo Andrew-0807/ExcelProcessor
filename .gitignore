@@ -78,3 +78,8 @@ borderou/main/in/*
 CardCec/in/*
 !borderou/main/in/.gitkeep
 !CardCec/in/.gitkeep
+
+# AI Workspace
+tmp/
+
+models
