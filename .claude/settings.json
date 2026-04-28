@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir \"e:\\\\Programming\\\\Trae - MomAutomations\")",
+      "Bash(git -C \"e:/Programming/Trae - MomAutomations\" status)",
+      "Bash(git -C \"e:\\\\Programming\\\\Trae - MomAutomations\" status)",
+      "Bash(cmd /c \"cd /d \"\"e:\\\\Programming\\\\Trae - MomAutomations\"\" && git status 2>&1\")",
+      "mcp__hindsight__hindsight_recall",
+      "Bash(curl -s http://localhost:7779/health)",
+      "mcp__hindsight__hindsight_retain",
+      "Read(//e/Programming/Hindsight/**)",
+      "Read(//c/Users/andrei/AppData/Roaming/Claude/**)"
+    ]
+  }
+}

@@ -4,6 +4,7 @@ import io
 import os
 import sys
 import tempfile
+import datetime
 import traceback
 import zipfile
 
@@ -49,12 +50,17 @@ except Exception as e:
     print(f"Error importing ExcelDataExtractor: {e}")
 
 try:
+    from app.modules.core.receptii_extractor import ReceptiiExtractor
+except Exception as e:
+    print(f"Error importing ReceptiiExtractor: {e}")
+
+try:
     from app.modules.borderou.main import BorderouPipeline
 except Exception as e:
     print(f"Error importing BorderouPipeline: {e}")
 
 try:
-    from app.modules.cardcec.pos_processor import (
+    from app.modules.cardcec.pos_processor_fixed import (
         process_pos_file,
         detect_pos_type,
     )
@@ -88,8 +94,14 @@ def create_app() -> Flask:
     return app
 
 
-def _valid_excel(filename: str) -> bool:
-    return filename.endswith(".xlsx") or filename.endswith(".xls")
+def _valid_file(filename: str) -> bool:
+    lower_name = filename.lower()
+    return (
+        lower_name.endswith(".xlsx")
+        or lower_name.endswith(".xls")
+        or lower_name.endswith(".csv")
+        or lower_name.endswith(".pdf")
+    )
 
 
 @app.route("/")
@@ -107,9 +119,9 @@ def process_file():
         filenames: list[str] = []
         errors: list[str] = []
         for file in files:
-            # Check if the file has a valid Excel extension
-            if not _valid_excel(file.filename):
-                print(f"Skipping non-Excel file: {file.filename}")
+            # Check if the file has a valid extension
+            if not _valid_file(file.filename):
+                print(f"Skipping invalid file type: {file.filename}")
                 continue
             # Check if the file is not empty
             file.seek(0, io.SEEK_END)
@@ -120,26 +132,112 @@ def process_file():
                 continue
 
             try:
-                df = pd.read_excel(file, engine="openpyxl")
-                df.name = file.filename
+                # Only read as Excel initially if it's NOT borderou/cardcec/furnizori
+                # because those handle reading internally and may accept PDFs
+                df = None
+                _is_pdf = file.filename.lower().endswith(".pdf")
+                if _is_pdf and process_type not in {
+                    "borderou",
+                    "cardcec",
+                    "furnizori",
+                    "adaos",
+                    "sgr",
+                    "minus",
+                    "sales_transform",
+                }:
+                    raise ValueError(
+                        f"Process type '{process_type}' does not support PDF files."
+                    )
+                if not _is_pdf and process_type not in {"borderou", "cardcec"}:
+                    _excel_engine = "xlrd" if file.filename.lower().endswith(".xls") else "openpyxl"
+                    df = pd.read_excel(file, engine=_excel_engine)
+                    df.name = file.filename
+                # PDF handling for generic modules (adaos, minus, sales_transform).
+                # SGR PDFs are text-only (no tables) so they are handled separately
+                # inside the process_type == "sgr" block below.
+                if _is_pdf and process_type in {
+                    "adaos",
+                    "minus",
+                    "sales_transform",
+                }:
+                    import shutil as _shutil
+                    from app.modules.core.pdf_extractor import (
+                        extract_dataframe_from_pdf,
+                    )
+
+                    temp_dir = tempfile.mkdtemp()
+                    temp_file_path = os.path.join(temp_dir, file.filename)
+                    try:
+                        file.seek(0)
+                        with open(temp_file_path, "wb") as tf:
+                            tf.write(file.read())
+                        df = extract_dataframe_from_pdf(temp_file_path)
+                        df.name = file.filename
+                    finally:
+                        _shutil.rmtree(temp_dir, ignore_errors=True)
 
                 # Process the data based on the process_type
                 if process_type == "adaos":
                     processor = FormatAddColumn()
                     result_df = processor.process_dataframe(df)
+                    if result_df is None:
+                        raise ValueError(
+                            f"Adaos processing returned no data for '{file.filename}'. "
+                            "Check that the file has the required columns (e.g. '% TVA VANZARE')."
+                        )
                 elif process_type == "sgr":
-                    processor = SGRValueProcessor()
-                    result_df = processor.process_dataframe(df)
+                    if _is_pdf:
+                        import shutil as _shutil
+                        temp_dir = tempfile.mkdtemp()
+                        temp_file_path = os.path.join(temp_dir, file.filename)
+                        try:
+                            file.seek(0)
+                            with open(temp_file_path, "wb") as tf:
+                                tf.write(file.read())
+                            processor = SGRValueProcessor()
+                            result_df = processor.process_pdf_file(temp_file_path)
+                        finally:
+                            _shutil.rmtree(temp_dir, ignore_errors=True)
+                    else:
+                        processor = SGRValueProcessor()
+                        result_df = processor.process_dataframe(df)
+                    if result_df is None:
+                        raise ValueError(
+                            f"PDF-ul SGR '{file.filename}' nu contine randuri de date. "
+                            "Asigura-te ca ai incarcat un PDF RetuRO-SGR valid "
+                            "(Garantii SGR Platite cu Numerar)."
+                        )
                 elif process_type == "minus":
                     processor = ValoareMinus()
                     result_df = processor.process_dataframe(df)
-                elif process_type == "extract":
-                    processor = ExcelDataExtractor()
-                    result_df = processor.process_dataframe(df)
+                    if result_df is None:
+                        raise ValueError(
+                            f"Minus processing returned no data for '{file.filename}'."
+                        )
+                elif process_type == "furnizori":
+                    if _is_pdf:
+                        import shutil as _shutil
+
+                        temp_dir = tempfile.mkdtemp()
+                        temp_file_path = os.path.join(temp_dir, file.filename)
+                        try:
+                            file.seek(0)
+                            with open(temp_file_path, "wb") as tf:
+                                tf.write(file.read())
+                            extractor = ReceptiiExtractor()
+                            result_df = extractor.process(
+                                temp_file_path, original_filename=file.filename
+                            )
+                        finally:
+                            _shutil.rmtree(temp_dir, ignore_errors=True)
+                    else:
+                        processor = ExcelDataExtractor()
+                        result_df = processor.process_dataframe(df)
                 elif process_type == "borderou":
                     # Handle borderou processing - save file to a temp dir using the
                     # ORIGINAL filename so that M1/M2 pattern matching works downstream.
                     import shutil as _shutil
+
                     temp_dir = tempfile.mkdtemp()
                     temp_file_path = os.path.join(temp_dir, file.filename)
                     try:
@@ -154,7 +252,7 @@ def process_file():
                         pipeline = BorderouPipeline()
                         result = pipeline.process_file(temp_file_path)
 
-                        if result:
+                        if result and result != "skipped":
                             # For borderou, we need to read the generated file(s)
                             if isinstance(result, list):
                                 # Multiple files - we'll zip them
@@ -181,7 +279,10 @@ def process_file():
                         _shutil.rmtree(temp_dir, ignore_errors=True)
                 elif process_type == "cardcec":
                     # Save the uploaded file temporarily with unique name
-                    fd, temp_file_path = tempfile.mkstemp(suffix=".xlsx")
+                    original_ext = os.path.splitext(file.filename)[1]
+                    if not original_ext:
+                        original_ext = ".xlsx"
+                    fd, temp_file_path = tempfile.mkstemp(suffix=original_ext)
                     fd_closed = False
                     try:
                         with os.fdopen(fd, "wb") as temp_file:
@@ -209,7 +310,12 @@ def process_file():
 
                         # Process the file with the original standalone processor
                         pos_type = detect_pos_type(file.filename)
-                        process_pos_file(temp_file_path, temp_output_path, pos_type)
+                        process_pos_file(
+                            temp_file_path,
+                            temp_output_path,
+                            pos_type,
+                            original_filename=file.filename,
+                        )
 
                         # Read the processed CSV file back into a DataFrame
                         result_df = pd.read_csv(temp_output_path, encoding="utf-8-sig")
@@ -239,6 +345,9 @@ def process_file():
                 outputs.append(output)
                 # Save the filename for the zip
                 original_filename = file.filename
+                base_name, ext = os.path.splitext(original_filename)
+                if ext.lower() == ".pdf":
+                    original_filename = base_name + ".xlsx"
                 processed_filename = f"{process_type} - {original_filename}"
                 filenames.append(processed_filename)
             except Exception as e:
@@ -250,6 +359,51 @@ def process_file():
                 print(tb)
                 print(f"{'=' * 60}\n")
                 errors.append({"file": file.filename, "error": str(e), "traceback": tb})
+
+                # Save the failed file + a text report to errors/<module>/
+                try:
+                    if getattr(sys, "frozen", False):
+                        err_base = os.path.dirname(sys.executable)
+                    else:
+                        err_base = _root
+
+                    # Verify the base directory is writable; fall back to tempdir
+                    _probe = os.path.join(err_base, ".write_probe")
+                    try:
+                        with open(_probe, "w") as _f:
+                            _f.write("")
+                        os.remove(_probe)
+                    except OSError:
+                        import tempfile as _tempfile
+
+                        _fallback = _tempfile.gettempdir()
+                        print(
+                            f"[error dump] {err_base!r} is not writable, using {_fallback!r}"
+                        )
+                        err_base = _fallback
+
+                    err_dir = os.path.join(err_base, "errors", process_type)
+                    os.makedirs(err_dir, exist_ok=True)
+
+                    ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+                    safe_name = os.path.basename(file.filename)
+                    err_file_path = os.path.join(err_dir, f"{ts}_{safe_name}")
+                    err_txt_path = os.path.join(err_dir, f"{ts}_{safe_name}.txt")
+
+                    file.seek(0)
+                    with open(err_file_path, "wb") as fout:
+                        fout.write(file.read())
+                    with open(err_txt_path, "w", encoding="utf-8") as ftxt:
+                        ftxt.write(f"File:   {file.filename}\n")
+                        ftxt.write(f"Module: {process_type}\n")
+                        ftxt.write(f"Time:   {datetime.datetime.now().isoformat()}\n")
+                        ftxt.write(f"Error:  {e}\n\n")
+                        ftxt.write("--- Traceback ---\n")
+                        ftxt.write(tb)
+                    print(f"[error dump] saved to: {err_dir}")
+                except Exception as dump_err:
+                    print(f"[error dump] could not save error files: {dump_err}")
+
                 continue
 
         # These lines should be OUTSIDE the for loop!
@@ -300,20 +454,6 @@ def process_file():
             response_obj.headers["X-Processing-Warnings"] = error_summary
 
         return response_obj
-
-        # If multiple files, zip them
-        zip_buffer = io.BytesIO()
-        with zipfile.ZipFile(zip_buffer, "w") as zipf:
-            for output, fname in zip(outputs, filenames):
-                output.seek(0)
-                zipf.writestr(fname, output.read())
-        zip_buffer.seek(0)
-        return send_file(
-            zip_buffer,
-            download_name="processed_files.zip",
-            as_attachment=True,
-            mimetype="application/zip",
-        )
 
     except Exception as e:
         traceback.print_exc()

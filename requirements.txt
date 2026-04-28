@@ -1,7 +1,9 @@
 flask
 pandas
 openpyxl
+xlrd
 pystray
 Pillow
 requests
 packaging
+pdfplumber

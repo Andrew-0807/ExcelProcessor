@@ -1,0 +1,12 @@
+File:   Borderou_de_Vanzare_(Incasare) M1.xlsx
+Module: sgr
+Time:   2026-04-26T13:09:26.047547
+Error:  SGR processing returned no data for 'Borderou_de_Vanzare_(Incasare) M1.xlsx'. Upload a RetuRO-SGR PDF (Garantii SGR Platite cu Numerar).
+
+--- Traceback ---
+Traceback (most recent call last):
+  File "E:\Programming\Trae - MomAutomations\app\server.py", line 205, in process_file
+    raise ValueError(
+    ...<2 lines>...
+    )
+ValueError: SGR processing returned no data for 'Borderou_de_Vanzare_(Incasare) M1.xlsx'. Upload a RetuRO-SGR PDF (Garantii SGR Platite cu Numerar).

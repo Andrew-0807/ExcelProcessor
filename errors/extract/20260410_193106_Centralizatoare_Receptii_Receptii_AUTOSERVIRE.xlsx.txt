@@ -1,0 +1,11 @@
+File:   Centralizatoare_Receptii_Receptii_AUTOSERVIRE.xlsx
+Module: extract
+Time:   2026-04-10T19:31:06.101929
+Error:  name 'ExcelDataExtractor' is not defined
+
+--- Traceback ---
+Traceback (most recent call last):
+  File "E:\Programming\Trae - MomAutomations\app\server.py", line 145, in process_file
+    processor = ExcelDataExtractor()
+                ^^^^^^^^^^^^^^^^^^
+NameError: name 'ExcelDataExtractor' is not defined

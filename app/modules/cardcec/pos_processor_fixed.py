@@ -8,8 +8,8 @@ from datetime import datetime
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# Allowed payment types for filtering
-ALLOWED_PAYMENT_TYPES = {'card', 'cec'}
+# Allowed payment types for filtering (lowercase).
+ALLOWED_PAYMENT_TYPES = {'card', 'cec', 'sgr', 'tichet'}
 
 # Mapping of explicatie to cont_credit
 EXPLICATIE_TO_ACCOUNT = {
@@ -23,10 +23,12 @@ EXPLICATIE_TO_ACCOUNT = {
 BUSINESS_CONFIG = {
     'AMT': {
         'tag': 'AMT',
-        'export_info': '20250101-20251231-CielStd_1057',
-        # Add other business-specific configurations here
+        'export_info': '20260101-20261231-CielStd_1057',
     },
-    # Add other business configurations as needed
+    'AMT_M': {
+        'tag': 'AMT',
+        'export_info': '20260101-20261231-CielStd_1001',
+    },
 }
 
 # POS type configurations
@@ -47,17 +49,17 @@ POS_CONFIGS = {
         'explicatie': 'Cec',
     },
     'M1': {
-        'business': 'AMT',
+        'business': 'AMT_M',
         'punct_lucru': 'M1',
         'explicatie': 'CARD',
     },
     'M2': {
-        'business': 'AMT',
+        'business': 'AMT_M',
         'punct_lucru': 'M2',
         'explicatie': 'CARD',
     },
     'M3': {
-        'business': 'AMT',
+        'business': 'AMT_M',
         'punct_lucru': 'M3',
         'explicatie': 'CARD',
     },
@@ -80,6 +82,7 @@ OUTPUT_COLUMNS = [
     'Reevaluare', 'Factura simplificata', 'Borderou de achizitie',
     'Carnet prod. Agricole', 'Contract', 'Document stornat'
 ]
+assert len(OUTPUT_COLUMNS) == 53
 
 class POSProcessor:
     """Process POS files and convert them to the required import format."""
@@ -105,6 +108,17 @@ class POSProcessor:
         self.config = POS_CONFIGS[pos_type].copy()
         self.config['filename'] = self.filename  # Add filename to config
         
+    @staticmethod
+    def _normalize_col(name: str) -> str:
+        """Strip whitespace and replace Romanian diacritics so column lookups work
+        regardless of whether the Excel file uses ă/î/ș/ț or their plain equivalents."""
+        name = str(name).strip()
+        for ro, plain in [('ă', 'a'), ('Ă', 'A'), ('â', 'a'), ('Â', 'A'),
+                          ('î', 'i'), ('Î', 'I'), ('ș', 's'), ('Ș', 'S'),
+                          ('ț', 't'), ('Ț', 'T')]:
+            name = name.replace(ro, plain)
+        return name
+
     def _read_input_file(self) -> pd.DataFrame:
         """Read the input POS file and return a DataFrame."""
         logger.info(f"Reading input file: {self.input_file}")
@@ -112,11 +126,28 @@ class POSProcessor:
             # Read the file based on extension
             if self.input_file.suffix.lower() == '.xlsx':
                 df = pd.read_excel(self.input_file)
+            elif self.input_file.suffix.lower() == '.pdf':
+                from app.modules.core.pdf_extractor import (
+                    extract_pos_dataframe_from_pdf,
+                    extract_sgr_dataframe_from_pdf,
+                    extract_tichete_dataframe_from_pdf,
+                )
+                # Use the original filename (self.filename) for routing, not the
+                # temp file path (self.input_file.name) which has no meaningful name.
+                name_lower = Path(self.filename).name.lower()
+                if 'sgr' in name_lower:
+                    df = extract_sgr_dataframe_from_pdf(str(self.input_file))
+                elif 'tichete' in name_lower:
+                    df = extract_tichete_dataframe_from_pdf(str(self.input_file))
+                else:
+                    df = extract_pos_dataframe_from_pdf(str(self.input_file))
             else:
                 df = pd.read_csv(self.input_file, encoding='latin1')
-            
-            # Clean column names (strip whitespace and remove special characters)
-            df.columns = df.columns.str.strip()
+
+            # Clean column names: strip whitespace and normalize Romanian diacritics
+            # so that e.g. 'Data Ultimei Încasări' matches 'Data Ultimei Incasari'
+            df.columns = [self._normalize_col(c) for c in df.columns]
+            logger.info(f"Columns after normalization: {list(df.columns)}")
             
             # Filter by payment type (card or cec only)
             tip_col = 'Tip Incasare' if 'Tip Incasare' in df.columns else 'Explicatie'
@@ -137,33 +168,46 @@ class POSProcessor:
     def _transform_data(self, df: pd.DataFrame) -> pd.DataFrame:
         """Transform the input data into the required output format."""
         logger.info("Transforming data...")
-        
+
+        # Detect date column once before the row loop to avoid per-row KeyError spam
+        _DATE_COL_CANDIDATES = [
+            'Data Ultimei Incasari', 'Data', 'Data Tranzactie', 'Data Document'
+        ]
+        date_col = next((c for c in _DATE_COL_CANDIDATES if c in df.columns), None)
+        if date_col is None:
+            logger.error(
+                f"No date column found in input file. "
+                f"Tried: {_DATE_COL_CANDIDATES}. "
+                f"Available columns: {list(df.columns)}"
+            )
+
         # Create a new DataFrame with the required columns
         output_data = []
-        
-        for _, row in df.iterrows():
-            # Extract and format date from 'Data Ultimei Incasari' column
-            try:
-                # Get the date string and split by space to separate date and time
-                date_str = str(row['Data Ultimei Incasari']).split()[0]
-                # Parse the date parts (format DD-MMM-YY)
-                day, month_str, year = date_str.split('-')
-                
-                # Map month abbreviations to numbers
-                month_map = {
-                    'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04',
-                    'May': '05', 'Jun': '06', 'Jul': '07', 'Aug': '08',
-                    'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12'
-                }
-                
-                # Get the month number from abbreviation
-                month_num = month_map.get(month_str, '01')
-                
-                # Format as YYYYMMDD (assuming 20xx for 2-digit years)
-                formatted_date = f"20{year}{month_num}{day.zfill(2)}"
-            except (KeyError, ValueError, AttributeError, IndexError) as e:
-                logger.warning(f"Could not parse date from: {row.get('Data Ultimei Incasari', 'N/A')}. Error: {e}")
-                formatted_date = ''
+
+        for row_idx, (_, row) in enumerate(df.iterrows()):
+            # Two-stage date parsing: DD-MMM-YY first, pandas fallback second
+            formatted_date = ''
+            if date_col:
+                raw = row.get(date_col, '')
+                raw_str = str(raw).strip() if raw is not None else ''
+                if raw_str and raw_str.lower() not in ('nat', 'nan', 'none', ''):
+                    # Stage 1: DD-MMM-YY (e.g. "18-Mar-26")
+                    try:
+                        date_part = raw_str.split()[0]
+                        day, month_str, year = date_part.split('-')
+                        month_map = {
+                            'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04',
+                            'May': '05', 'Jun': '06', 'Jul': '07', 'Aug': '08',
+                            'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12',
+                        }
+                        month_num = month_map[month_str]  # KeyError → fallback
+                        formatted_date = f"20{year}{month_num}{day.zfill(2)}"
+                    except (KeyError, ValueError, AttributeError, IndexError):
+                        # Stage 2: DD/MM/YYYY or other formats — always dayfirst
+                        try:
+                            formatted_date = pd.to_datetime(raw, dayfirst=True).strftime('%Y%m%d')
+                        except Exception as e:
+                            logger.warning(f"Could not parse date '{raw_str}': {e}")
             
             # Get the correct debit account based on filename
             filename = self.config.get('filename', '')
@@ -176,26 +220,45 @@ class POSProcessor:
             else:
                 debit_account = '5311'  # Default for AMT COMPLEX
             
-            # Get cont_credit based on explicatie
-            explicatie = str(row.get('Explicatie', '')).upper()
-            if 'CARD' in explicatie:
-                cont_credit = '51131'
-            elif 'CEC' in explicatie:
-                cont_credit = '51132'
+            # Determine cont_credit and output Explicatie based on Tip Incasare
+            tip_inc = str(row.get('Tip Incasare', '')).upper()
+            explicatie_in = str(row.get('Explicatie', '')).upper()
+
+            if tip_inc == 'CARD' or 'CARD' in explicatie_in:
+                cont_credit  = '51131'
+                explicatie_out = 'CARD'
+            elif tip_inc == 'CEC' or 'CEC' in explicatie_in:
+                cont_credit  = '51132'
+                explicatie_out = 'Cec'
+            elif tip_inc == 'TICHET':
+                cont_credit  = '53281'
+                explicatie_out = 'TICHET'
             else:
-                cont_credit = '5311'
-            
+                # SGR and any other cash type
+                cont_credit  = '5311'
+                explicatie_out = tip_inc if tip_inc else 'SGR'
+
+            # Negate value: these are credit entries (money leaving the cash register)
+            raw_val = row.get('Valoare', 0)
+            try:
+                valoare = -abs(float(raw_val))
+            except (TypeError, ValueError):
+                valoare = raw_val
+
+            # First row gets the account title; subsequent rows leave it blank
+            debit_titlu = 'Casa in lei' if row_idx == 0 else ''
+
             # Create a new row in the output format
             new_row = {
-                'Nr. inreg.': '',  # Empty as per requirements
-                'Tip inregistrare': 'CASA',
+                'Nr. inreg.': '',
+                'Tip inregistrare': 'Casa',
                 'Jurnal': 'RC',
                 'Data': formatted_date,
-                'Data scadenta': formatted_date,  # Same as Data
-                'Numar document': str(row.get('Nr. Z', '')),  # Convert to string to ensure consistent format
+                'Data scadenta': formatted_date,
+                'Numar document': str(row.get('Nr. Z', '')),
                 'Cod tip factura': '',
                 'Cont debit simbol': debit_account,
-                'Cont debit titlu': '',
+                'Cont debit titlu': debit_titlu,
                 'Metoda de plata SAF-T': '',
                 'Mecanism de plata SAF-T': '',
                 'Tip Taxa SAF-T': '',
@@ -206,15 +269,35 @@ class POSProcessor:
                 'Mecanism de plata SAFT-T': '',
                 'Tip Taxa SAF_T': '',
                 'Cod TAXA SAF_T': '',
-                'Explicatie': f"{self.config['explicatie']} {BUSINESS_CONFIG[self.config['business']]['tag']}",
-                'Valoare': row.get('Valoare', ''),
+                'Explicatie': explicatie_out,
+                'Valoare': valoare,
+                'Cod Partener': '',
+                'Partener CIF': '',
+                'Partener Nume': '',
+                'Partener Rezidenta': '',
+                'Partener Judet': '',
+                'Partener Cont': '',
+                'Angajat CNP': '',
+                'Angajat Nume': '',
+                'Angajat Cont': '',
+                'Optiune TVA': '',
+                'Cota TVA': '',
+                'Cod TVA SAF-T': '',
+                'Moneda': '',
+                'Curs': '',
+                'Valoare deviza': '',
+                'Stornare - Nr. inreg.': '',
+                'Incasari/plati': '',
+                'Diferente curs': '',
+                'TVA la incasare': 0,
+                'Colectare/Deducere TVA': '',
+                'Efect de incasat/platit': '',
+                'Banca efect': '',
+                'Centre de cost': '',
                 'Informatii export': BUSINESS_CONFIG[self.config['business']]['export_info'],
                 'Punct de lucru': self.config['punct_lucru'],
-                # Add other required fields with default values
-                'Optiune TVA': '',
-                'TVA la incasare': 0,
-                'Deductibilitate': 0,
-                'Reevaluare': 0,
+                'Deductibilitate': '',
+                'Reevaluare': '',
                 'Factura simplificata': 0,
                 'Borderou de achizitie': 0,
                 'Carnet prod. Agricole': 0,
@@ -239,7 +322,10 @@ class POSProcessor:
             output_df = self._transform_data(input_df)
             
             # Save the output file
-            output_df.to_csv(self.output_file, index=False, encoding='utf-8-sig')
+            if self.output_file.suffix.lower() in ('.xlsx', '.xls'):
+                output_df.to_excel(self.output_file, index=False)
+            else:
+                output_df.to_csv(self.output_file, index=False, encoding='utf-8-sig')
             logger.info(f"Successfully saved output to {self.output_file}")
             
         except Exception as e:
@@ -255,18 +341,18 @@ def detect_pos_type(filename: str) -> Optional[str]:
         return 'Fast Food 1'
     elif any(x in filename_lower for x in ['fast food 2', 'fastfood2', 'ff2']):
         return 'Fast Food 2'
-    elif 'autoservire' in filename_lower or 'amt' in filename_lower:
-        return 'Autoservire'
     elif 'm1' in filename_lower:
         return 'M1'
     elif 'm2' in filename_lower:
         return 'M2'
     elif 'm3' in filename_lower:
         return 'M3'
-    
+    elif 'autoservire' in filename_lower or 'amt complex' in filename_lower:
+        return 'Autoservire'
+
     return None
 
-def process_pos_file(input_path: str, output_path: str = None, pos_type: str = None) -> None:
+def process_pos_file(input_path: str, output_path: str = None, pos_type: str = None, original_filename: str = None) -> None:
     """
     Process a POS file and convert it to the required import format.
     
@@ -274,24 +360,27 @@ def process_pos_file(input_path: str, output_path: str = None, pos_type: str = N
         input_path: Path to the input POS file
         output_path: Path to save the output file (default: same as input with 'IMPORT CARD' prefix)
         pos_type: Type of POS (if None, will try to detect from filename)
+        original_filename: The original filename to use for POS type detection and M1/M2 routing
     """
     input_path = Path(input_path)
     
-    # Set default output path if not provided
     if output_path is None:
-        output_path = input_path.parent / f"IMPORT CARD {input_path.stem}.csv"
+        # Default output path
+        output_filename = f"IMPORT CARD {input_path.name}"
+        if input_path.suffix.lower() == '.pdf':
+            output_filename = output_filename.replace('.pdf', '.csv').replace('.PDF', '.csv')
+        output_path = input_path.parent / output_filename
     
-    # Detect POS type if not provided
+    filename_to_check = original_filename or input_path.name
+    
     if pos_type is None:
-        pos_type = detect_pos_type(input_path.name)
+        pos_type = detect_pos_type(filename_to_check)
         if pos_type is None:
-            raise ValueError(
-                "Could not detect POS type from filename. "
-                "Please specify the POS type using --pos-type parameter."
-            )
-    
+            logger.warning(f"Could not explicitly detect POS type from filename: {filename_to_check}. Defaulting to 'Autoservire'")
+            pos_type = 'Autoservire'  # Fallback
+            
     # Process the file
-    processor = POSProcessor(input_path, output_path, pos_type, input_path.name)
+    processor = POSProcessor(str(input_path), str(output_path), pos_type, filename=filename_to_check)
     processor.process()
 
 if __name__ == "__main__":

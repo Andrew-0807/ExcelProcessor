@@ -1,0 +1,11 @@
+File:   Centralizatoare_Receptii_Receptii_M1.PDF
+Module: adaos
+Time:   2026-04-14T10:31:18.892075
+Error:  'NoneType' object has no attribute 'to_excel'
+
+--- Traceback ---
+Traceback (most recent call last):
+  File "E:\Programming\Trae - MomAutomations\app\server.py", line 313, in process_file
+    result_df.to_excel(output, index=False, engine="openpyxl")
+    ^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'to_excel'

@@ -19,6 +19,7 @@ Usage: python -m app.modules.borderou.main
 
 import csv
 import os
+import re
 from datetime import datetime
 
 import openpyxl
@@ -46,16 +47,29 @@ FILE_TYPE_CONFIG = {
     "FF2": ("F", 3, "FF 2", 5311, "FF2"),
     "AUTOS": ("A", 1, "autoservire", 5311, "AUTOS"),
     "REST": ("R", 2, "restaurant", 5311, "REST"),
+    # ── Branch M ──────────────────────────────────────────
+    # serie is a format string; {pos:04d} / {pos} is replaced with the POS number
+    # extracted from the Explicatii column (column E) of each row.
+    "M1": ("BFM1 {pos:04d}", 1, "marfa m1 ", 53111, "M1"),
+    "M2": ("BFM2 {pos}", 2, "marfa m2 ", 53112, "M2"),
+    "M3": ("BFM3", 3, "marfa m3 ", 53113, "M3"),
 }
 
 
 def _match_file_type(filename: str):
-    """Return the config tuple for the given filename, or 'skip' / None."""
+    """Return the config tuple for the given filename, or 'skip' / None.
+
+    Falls back to AUTOS for any plain 'Borderou' file that has no recognised
+    type suffix (e.g. a PDF exported without a branch/type tag in its name).
+    """
     upper = filename.upper()
     # Check longer patterns first to avoid partial matches
     for pattern in sorted(FILE_TYPE_CONFIG, key=len, reverse=True):
         if pattern in upper:
             return FILE_TYPE_CONFIG[pattern]
+    # Fallback: a plain borderou file with no type tag → treat as AUTOS
+    if "BORDEROU" in upper:
+        return FILE_TYPE_CONFIG["AUTOS"]
     return None
 
 
@@ -282,6 +296,14 @@ def _detect_column_layout(csv_path: str) -> dict:
         }
 
 
+def _extract_pos(explicatii: str | None) -> int | None:
+    """Extract POS terminal number from an Explicatii string like 'Z emis la POS nr.14 ...'."""
+    if not explicatii:
+        return None
+    m = re.search(r'POS\s+nr\.(\d+)', str(explicatii), re.IGNORECASE)
+    return int(m.group(1)) if m else None
+
+
 def _safe_float(value, default=0.0) -> float:
     """Convert a value to float, returning default for None/empty/invalid."""
     if value is None or str(value).strip() == "":
@@ -319,10 +341,18 @@ def _parse_csv_to_rows(csv_path: str) -> list[dict] | None:
             except Exception:
                 continue  # skip rows with unparseable dates
 
+            # Skip rows where Nr. Doc(Z) is not a plain number (e.g. 'AMT 2539')
+            nr_doc_raw = col("Nr_Doc_Z")
+            try:
+                nr_doc = int(float(str(nr_doc_raw).strip()))
+            except (ValueError, TypeError):
+                continue
+
             rows.append(
                 {
-                    "Nr_Doc_Z": int(float(str(col("Nr_Doc_Z")).strip())),
+                    "Nr_Doc_Z": nr_doc,
                     "Data": dt,
+                    "Explicatii": cells[4] if len(cells) > 4 else None,
                     "Total_Valoare": _safe_float(col("Total_Valoare")),
                     "Taxabile_21_Baza": _safe_float(col("Taxabile_21_Baza")),
                     "Taxabile_21_TVA": _safe_float(col("Taxabile_21_TVA")),
@@ -415,19 +445,113 @@ def _build_output_row(
     }
 
 
+def _build_m_output_row(
+    row: dict,
+    serie: str,
+    cod_depozit: int,
+    denumire: str,
+    cont_casa: int,
+    cota_tva: int,
+    cod_tva_saft: int,
+) -> dict:
+    """Build one 53-column output row for Branch M (M1/M2/M3).
+
+    If `serie` contains a ``{pos}`` placeholder, it is resolved using the POS
+    number extracted from the row's Explicatii field.
+    """
+    # Resolve per-row serie from POS number in Explicatii when the template
+    # contains a {pos} placeholder (M1/M2 configs).
+    if "{pos" in serie:
+        pos_num = _extract_pos(row.get("Explicatii"))
+        if pos_num is not None:
+            serie = serie.format(pos=pos_num)
+        else:
+            # No POS found — strip the placeholder so we get a clean fallback.
+            serie = re.sub(r'\{pos[^}]*\}', '', serie).strip()
+
+    date_str = row["Data"].strftime("%Y%m%d")
+    total_minus_netax = row["Total_Valoare"] - row["Netaxabil_Baza"]
+
+    if cota_tva == 21:
+        baza = row["Taxabile_21_Baza"]
+        tva = row["Taxabile_21_TVA"]
+    else:
+        baza = row["Taxabile_11_Baza"]
+        tva = row["Taxabile_11_TVA"]
+
+    return {
+        "Serie document": serie,
+        "Numar document": row["Nr_Doc_Z"],
+        "Cod depozit": cod_depozit,
+        "Nume depozit": "",
+        "Data document": date_str,
+        "Data scadenta": date_str,
+        "Cod tip factura SAF-T": 380,
+        "Cod partener": "",
+        "Nume partener": "",
+        "Atribut fiscal": "",
+        "Cod fiscal": "",
+        "Nr.Reg.Com.": "",
+        "Rezidenta": "",
+        "Tara": "",
+        "Judet": "",
+        "Localitate": "",
+        "Strada": "",
+        "Numar": "",
+        "Bloc": "",
+        "Scara": "",
+        "Etaj": "",
+        "Apartament": "",
+        "Cod postal": "",
+        "Cod agent": "",
+        "Valoare neta totala": baza,
+        "Valoare TVA": tva,
+        "Total document": total_minus_netax,
+        "Numar bonuri fiscale": "",
+        "Card": 0,
+        "Cont banca": 5125,
+        "Numerar": total_minus_netax,
+        "Cont casa": cont_casa,
+        "Tichete": 0,
+        "Cont tichete": 5328,
+        "Cont TVA": 4427,
+        "Cod articol": f"{denumire} {cota_tva}%",
+        "Cod de bare": "",
+        "Denumire articol": denumire,
+        "Cantitate": 1,
+        "Cod lot": "",
+        "Data expirare": "",
+        "Nr seriale": "",
+        "Tip miscare SAF-T": "",
+        "Cont serviciu": "",
+        "Pret cu TVA": baza + tva,
+        "Total fara TVA": baza,
+        "Total TVA": tva,
+        "Total cu TVA": baza + tva,
+        "Optiune TVA": "Taxabile",
+        "Cota TVA": cota_tva,
+        "Cod TVA SAF-T": cod_tva_saft,
+        "Discount": "",
+        "DiscountLinie": "",
+    }
+
+
 def _transform(
-    rows: list[dict], serie: str, cod_depozit: int, denumire: str, cont_casa: int
+    rows: list[dict], serie: str, cod_depozit: int, denumire: str, cont_casa: int,
+    is_m_branch: bool = False,
 ) -> pd.DataFrame:
     """Transform standardized rows into a 53-column DataFrame."""
     out_rows_21 = []
     out_rows_11 = []
 
+    builder = _build_m_output_row if is_m_branch else _build_output_row
+
     for row in rows:
         out_rows_21.append(
-            _build_output_row(row, serie, cod_depozit, denumire, cont_casa, 21, 310344)
+            builder(row, serie, cod_depozit, denumire, cont_casa, 21, 310344)
         )
         out_rows_11.append(
-            _build_output_row(row, serie, cod_depozit, denumire, cont_casa, 11, 310351)
+            builder(row, serie, cod_depozit, denumire, cont_casa, 11, 310351)
         )
 
     all_rows = out_rows_21 + out_rows_11
@@ -472,11 +596,37 @@ class BorderouPipeline:
 
         serie, cod_depozit, denumire, cont_casa, out_tag = cfg
 
-        # ── Step 1: Excel → CSV (temp) ──
+        # ── Step 1: File → CSV (temp) ──
         csv_name = f"_borderou_tmp_{os.path.splitext(filename)[0]}.csv"
         csv_path = os.path.join(self.tmp_dir, csv_name)
-        print("   [1] Converting Excel to CSV...")
+        
+        # ── PDF short-circuit: parse directly, no CSV step needed ──────────
+        if excel_path.lower().endswith('.pdf'):
+            try:
+                from app.modules.core.pdf_extractor import extract_borderou_rows_from_pdf
+                print("   [1] Extracting rows from PDF...")
+                rows = extract_borderou_rows_from_pdf(excel_path)
+                if not rows:
+                    print(f"   WARNING: No data rows in PDF {filename}, skipping.")
+                    return "skipped"
+                print(f"       Found {len(rows)} data rows.")
+                print("   [2] Transforming to 53-column format...")
+                is_m_branch = out_tag in ("M1", "M2", "M3")
+                df = _transform(rows, serie, cod_depozit, denumire, cont_casa, is_m_branch=is_m_branch)
+                out_path = os.path.join(self.output_dir, _output_filename(out_tag))
+                print(f"   [3] Writing XLSX -> {_output_filename(out_tag)}")
+                _write_xlsx(df, out_path)
+                print(f"   OK: {_output_filename(out_tag)}")
+                return out_path
+            except Exception as e:
+                print(f"   ERROR processing PDF: {e}")
+                import traceback
+                traceback.print_exc()
+                return None
+
+        # ── Excel path ────────────────────────────────────────────────────────
         try:
+            print("   [1] Converting Excel to CSV...")
             _excel_to_csv(excel_path, csv_path)
         except Exception as e:
             print(f"   ERROR converting to CSV: {e}")
@@ -493,7 +643,8 @@ class BorderouPipeline:
 
             # ── Step 3: Transform ──
             print("   [3] Transforming to 53-column format...")
-            df = _transform(rows, serie, cod_depozit, denumire, cont_casa)
+            is_m_branch = out_tag in ("M1", "M2", "M3")
+            df = _transform(rows, serie, cod_depozit, denumire, cont_casa, is_m_branch=is_m_branch)
 
             # ── Step 4: Write XLSX ──
             out_path = os.path.join(self.output_dir, _output_filename(out_tag))
@@ -505,7 +656,6 @@ class BorderouPipeline:
         except Exception as e:
             print(f"   ERROR: {e}")
             import traceback
-
             traceback.print_exc()
             return None
 
@@ -528,11 +678,11 @@ class BorderouPipeline:
         excel_files = sorted(
             os.path.join(self.input_dir, f)
             for f in os.listdir(self.input_dir)
-            if f.lower().endswith((".xlsx", ".xls"))
+            if f.lower().endswith((".xlsx", ".xls", ".pdf"))
         )
 
         if not excel_files:
-            print(f"WARNING: No Excel files found in {self.input_dir}")
+            print(f"WARNING: No Excel/PDF files found in {self.input_dir}")
             return
 
         print(f"Found {len(excel_files)} Excel file(s)\n")

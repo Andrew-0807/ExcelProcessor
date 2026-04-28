@@ -5,9 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Advanced Excel file processor with multiple processing modes for data transformation and analysis">
     <meta name="author" content="Andrew0807">
-    <meta name="theme-color" content="#667eea">
+    <meta name="theme-color" content="#059669">
     <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='excel-processor-icon.svg') }}">
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='excel-processor-icon.ico') }}">
+    <link rel="preconnect" href="https://api.fontshare.com">
+    <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@700,600,500,400&display=swap">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <title>Excel Processor - Advanced File Processing</title>
 </head>
@@ -18,27 +20,12 @@
                 <div class="logo-section">
                     <div class="logo-icon" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <defs>
-                                <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
-                                    <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
-                                </linearGradient>
-                            </defs>
-                            <!-- Document with grid -->
-                            <path d="M14 2H6C4.89543 2 4 2.89543 4 4V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20V8L14 2Z" 
-                                  fill="url(#logoGradient)" stroke="url(#logoGradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M14 2V8H20" fill="#764ba2" stroke="url(#logoGradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <!-- Grid lines -->
-                            <g stroke="white" stroke-width="1.5" opacity="0.8">
-                                <line x1="7" y1="12" x2="17" y2="12"/>
-                                <line x1="7" y1="15" x2="17" y2="15"/>
-                                <line x1="7" y1="18" x2="14" y2="18"/>
-                                <line x1="10" y1="12" x2="10" y2="18"/>
-                                <line x1="14" y1="12" x2="14" y2="18"/>
-                            </g>
-                            <!-- Processing indicator -->
-                            <circle cx="16" cy="17" r="2" fill="white" opacity="0.9"/>
-                            <circle cx="16" cy="17" r="1" fill="#667eea"/>
+                            <path d="M14 2H6C4.89543 2 4 2.89543 4 4V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20V8L14 2Z"
+                                  stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M14 2V8H20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                            <line x1="8" y1="13" x2="16" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <line x1="8" y1="16" x2="16" y2="16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <line x1="8" y1="19" x2="13" y2="19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                         </svg>
                     </div>
                     <div class="logo-text">
@@ -75,10 +62,10 @@
                             <div class="drop-area-text">
                                 <p class="main-text">Drag & Drop your files here</p>
                                 <p class="sub-text">or click to browse</p>
-                                <p class="hint-text">Supported formats: .xlsx, .xls, .csv</p>
+                                <p class="hint-text">Supported formats: .xlsx, .xls, .csv, .pdf</p>
                             </div>
                         </div>
-                        <input type="file" id="fileInput" multiple accept=".xlsx,.xls,.csv" aria-label="Select files to upload">
+                        <input type="file" id="fileInput" multiple accept=".xlsx,.xls,.csv,.pdf" aria-label="Select files to upload">
                     </div>
 
                     <div id="file-list" class="file-list" role="list" aria-label="Selected files">
@@ -137,7 +124,7 @@
                         </label>
 
                         <label class="mode-card" tabindex="0">
-                            <input type="radio" name="process_type" value="extract">
+                            <input type="radio" name="process_type" value="furnizori">
                             <div class="mode-card-content">
                                 <div class="mode-icon" aria-hidden="true">
                                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -147,7 +134,7 @@
                                     </svg>
                                 </div>
                                 <div class="mode-info">
-                                    <span class="mode-name">Extract</span>
+                                    <span class="mode-name">Furnizori</span>
                                     <span class="mode-description">Extract data</span>
                                 </div>
                             </div>
@@ -188,24 +175,7 @@
                             </div>
                         </label>
 
-                        <label class="mode-card" tabindex="0">
-                            <input type="radio" name="process_type" value="sales_transform">
-                            <div class="mode-card-content">
-                                <div class="mode-icon" aria-hidden="true">
-                                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M7 12L17 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                                        <path d="M12 7V17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                                        <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
-                                        <path d="M16 8L20 12L16 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                        <path d="M8 8L4 12L8 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
-                                </div>
-                                <div class="mode-info">
-                                    <span class="mode-name">Sales Transform</span>
-                                    <span class="mode-description">Transform sales to accounting format</span>
-                                </div>
-                            </div>
-                        </label>
+
                     </div>
                 </section>
 
@@ -235,10 +205,7 @@
                     <span class="separator">•</span>
                     <span class="version">Version {{ app_version }}</span>
                 </div>
-                <div class="footer-links">
-                    <a href="#" class="footer-link" aria-label="Privacy Policy">Privacy</a>
-                    <a href="#" class="footer-link" aria-label="Terms of Service">Terms</a>
-                </div>
+
             </div>
         </footer>
     </div>
@@ -265,10 +232,10 @@
                     <li><strong>Adaos:</strong> Add percentage markup to values</li>
                     <li><strong>SGR:</strong> Apply SGR processing rules</li>
                     <li><strong>Minus:</strong> Subtract specified values</li>
-                    <li><strong>Extract:</strong> Extract specific data</li>
+                    <li><strong>Furnizori:</strong> Extract specific data</li>
                     <li><strong>Borderou:</strong> Transform borderou format</li>
                     <li><strong>CardCec:</strong> Process card data</li>
-                    <li><strong>Sales Transform:</strong> Transform sales data to accounting import format</li>
+
                 </ul>
                 
                 <h3>Process Files</h3>

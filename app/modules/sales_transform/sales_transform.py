@@ -53,7 +53,8 @@ class SalesTransformProcessor:
             ].copy()
 
             # Format date from YYYY-MM-DD to YYYYMMDD
-            df_filtered["data_formatted"] = pd.to_datetime(
+            df_filtered = df_filtered.reset_index(drop=True)
+            dates = pd.to_datetime(
                 df_filtered["data"], errors="coerce"
             ).dt.strftime("%Y%m%d")
 
@@ -96,61 +97,66 @@ class SalesTransformProcessor:
                 "Pret de lista",
                 "Valoare fara tva",
                 "Val TVA",
-                "Valoare  cu TVa",
+                "Valoare cu TVa",
                 "Optiune TVA",
                 "Cota TVA",
                 "Cod TVA SAFT",
                 "Observatie",
                 "Centre de cost",
             ]
+            assert len(final_columns) == 43
 
-            # Create empty dataframe with final columns
-            df_final = pd.DataFrame(columns=final_columns)
+            n = len(df_filtered)
 
-            # Map columns from filtered dataframe to final format
-            df_final["NR.linie"] = ""
-            df_final["Serie"] = "FV"
-            df_final["Numar document"] = df_filtered["nr_iesire"].astype(str)
-            df_final["Data"] = df_filtered["data_formatted"]
-            df_final["Data scadenta"] = df_filtered["data_formatted"]
-            df_final["Cod tip Factura"] = ""
-            df_final["Nume partener"] = df_filtered["tert"]
-            df_final["Atribut fiscal"] = ""
-            df_final["Cod fiscal"] = df_filtered["cod_fiscal"].astype(str)
-            df_final["Nr.Reg.Com."] = ""
-            df_final["Rezidenta"] = ""
-            df_final["Tara"] = ""
-            df_final["Judet"] = ""
-            df_final["Localitate"] = ""
-            df_final["Strada"] = ""
-            df_final["Numar"] = ""
-            df_final["Bloc"] = ""
-            df_final["Scara"] = ""
-            df_final["Etaj"] = ""
-            df_final["Apartament"] = ""
-            df_final["Cod postal"] = ""
-            df_final["Moneda"] = "RON"
-            df_final["Curs"] = ""
-            df_final["TVA la incasare"] = ""
-            df_final["Taxare inversa"] = ""
-            df_final["Factura de transport"] = ""
-            df_final["Cod agent"] = ""
-            df_final["Valoare neta totala"] = ""
-            df_final["Valoare TVA"] = ""
-            df_final["Total document"] = ""
-            df_final["Denumire articol"] = df_filtered["den_tip"]
-            df_final["Cantitate"] = df_filtered["cantitate"]
-            df_final["Tip miscare stoc"] = ""
-            df_final["Cont servicii"] = ""
-            df_final["Pret de lista"] = ""
-            df_final["Valoare fara tva"] = df_filtered["valoare"]
-            df_final["Val TVA"] = df_filtered["tva"]
-            df_final["Valoare  cu TVa"] = ""
-            df_final["Optiune TVA"] = "TAXABILE"
-            df_final["Cota TVA"] = df_filtered["tva_art"]
-            df_final["Cod TVA SAFT"] = ""
-            df_final["Observatie"] = ""
-            df_final["Centre de cost"] = ""
+            # Build all columns in one dict so scalars propagate correctly to every row
+            df_final = pd.DataFrame(
+                {
+                    "NR.linie": [""] * n,
+                    "Serie": ["FV"] * n,
+                    "Numar document": df_filtered["nr_iesire"].astype(str),
+                    "Data": dates,
+                    "Data scadenta": dates,
+                    "Cod tip Factura": [""] * n,
+                    "Nume partener": df_filtered["tert"],
+                    "Atribut fiscal": [""] * n,
+                    "Cod fiscal": df_filtered["cod_fiscal"].astype(str),
+                    "Nr.Reg.Com.": [""] * n,
+                    "Rezidenta": [""] * n,
+                    "Tara": [""] * n,
+                    "Judet": [""] * n,
+                    "Localitate": [""] * n,
+                    "Strada": [""] * n,
+                    "Numar": [""] * n,
+                    "Bloc": [""] * n,
+                    "Scara": [""] * n,
+                    "Etaj": [""] * n,
+                    "Apartament": [""] * n,
+                    "Cod postal": [""] * n,
+                    "Moneda": ["RON"] * n,
+                    "Curs": [""] * n,
+                    "TVA la incasare": [""] * n,
+                    "Taxare inversa": [""] * n,
+                    "Factura de transport": [""] * n,
+                    "Cod agent": [""] * n,
+                    "Valoare neta totala": [""] * n,
+                    "Valoare TVA": [""] * n,
+                    "Total document": [""] * n,
+                    "Denumire articol": df_filtered["den_tip"],
+                    "Cantitate": df_filtered["cantitate"],
+                    "Tip miscare stoc": [""] * n,
+                    "Cont servicii": [""] * n,
+                    "Pret de lista": [""] * n,
+                    "Valoare fara tva": df_filtered["valoare"],
+                    "Val TVA": df_filtered["tva"],
+                    "Valoare cu TVa": [""] * n,
+                    "Optiune TVA": ["TAXABILE"] * n,
+                    "Cota TVA": df_filtered["tva_art"],
+                    "Cod TVA SAFT": [""] * n,
+                    "Observatie": [""] * n,
+                    "Centre de cost": [""] * n,
+                },
+                columns=final_columns,
+            )
 
             print(f"Sales transformation complete!")
             print(f"Input rows: {len(df)}")

@@ -7,11 +7,26 @@ document.addEventListener('DOMContentLoaded', () => {
   const helpModal = document.getElementById('help-modal');
   const modalCloseBtns = document.querySelectorAll('.modal-close, .modal-close-btn');
   const fileList = document.getElementById('file-list');
-  
+
   if (!processBtn || !fileInput || !dropArea) {
     console.error('Required elements not found. Make sure your HTML has elements with IDs "processBtn", "fileInput", and "drop-area"');
     return;
   }
+
+  // Assign stagger index to each mode card for CSS animation-delay
+  document.querySelectorAll('.mode-card').forEach((card, i) => {
+    card.style.setProperty('--index', i);
+  });
+
+  // Track whether the user has explicitly chosen a process type.
+  // We listen on the label cards (not just the hidden radio inputs) because
+  // clicking a <label> doesn't always fire a reliable 'change' on the radio.
+  let userSelectedProcessType = false;
+  document.querySelectorAll('.mode-card').forEach(card => {
+    card.addEventListener('click', () => {
+      userSelectedProcessType = true;
+    });
+  });
 
   // Prevent default drag behaviors
   ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
@@ -36,9 +51,12 @@ document.addEventListener('DOMContentLoaded', () => {
     fileInput.click();
   });
 
-  // Update file input change handler
+  // Update file input change handler.
+  // Reset the manual-selection flag when the user picks a completely new set of
+  // files so the auto-suggest fires on the first drop/select, but only then.
   fileInput.addEventListener('change', () => {
     if (fileInput.files.length > 0) {
+      userSelectedProcessType = false;
       updateDropAreaText(fileInput.files.length);
       displayFileList(fileInput.files);
     }
@@ -92,6 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const dt = e.dataTransfer;
     const files = dt.files;
     fileInput.files = files;
+    userSelectedProcessType = false;  // new batch of files — allow auto-suggest once
     updateDropAreaText(files.length);
     displayFileList(files);
   }
@@ -116,6 +135,26 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!fileList) return;
     
     fileList.innerHTML = '';
+    
+    // Auto-match process type based on first file name, but only if the user
+    // hasn't already made a manual selection.
+    if (files.length > 0 && !userSelectedProcessType) {
+      const fileName = files[0].name.toLowerCase();
+      let processType = null;
+
+      if (fileName.includes('borderou')) {
+        processType = 'borderou';
+      } else if (fileName.includes('pos') || fileName.includes('incasari')) {
+        processType = 'cardcec';
+      }
+
+      if (processType) {
+        const radio = document.querySelector(`input[name="process_type"][value="${processType}"]`);
+        if (radio) {
+          radio.checked = true;
+        }
+      }
+    }
     
     Array.from(files).forEach(file => {
       const fileItem = document.createElement('div');
@@ -274,10 +313,12 @@ document.addEventListener('DOMContentLoaded', () => {
       messageContainer.appendChild(message);
     }
     
-    // Auto-remove after 5 seconds
+    // Auto-remove after 5 seconds with fade-out
     setTimeout(() => {
       if (message.parentNode) {
-        message.remove();
+        message.style.opacity = '0';
+        message.style.transform = 'translateY(6px)';
+        setTimeout(() => message.parentNode && message.remove(), 260);
       }
     }, 5000);
   }
