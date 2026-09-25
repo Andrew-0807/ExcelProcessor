@@ -1,0 +1,40 @@
+{
+  "topic": "Centralizator Recepții PDF → registrul de cumpărări cu CUI curat",
+  "slides": [
+    {
+      "number": 1,
+      "role": "hook",
+      "headline": "CUI-ul aceluiași furnizor scris în 3 feluri diferite. Toate sunt același furnizor.",
+      "body": "\"RO 27364819\", \"RO27364819\", \"27364819\" — spații, prefix, fără prefix. Excel-ul nu le recunoaște ca identice. Tu le unifici manual.",
+      "image_prompt": "Nano Banana Pro. Style: dark infographic, Facebook 1:1. Background: solid #0F0F0F. Layout: three stacked horizontal cards, each showing a different CUI format. Card 1: white text 'RO 27364819' (space between RO and number). Card 2: white text 'RO27364819' (no space). Card 3: white text '27364819' (no prefix). Each card has a small red X icon on the right. Below all three: green card showing '27364819' (clean, just digits) with green checkmark. Orange down-arrow between the red group and the green card. Label above red group: 'Același furnizor. 3 variante.' Flat vector. Romanian text."
+    },
+    {
+      "number": 2,
+      "role": "before",
+      "headline": "Ce conține un PDF Centralizator Recepții",
+      "body": "Fiecare rând are: număr NIR, dată, număr factură, dată document, nume furnizor, CUI și 12 valori financiare — totul pe o singură linie de text comprimat. Niciun tabel real.",
+      "image_prompt": "Nano Banana Pro. Style: dark annotation infographic, Facebook 1:1. Background: solid #0F0F0F. Layout: large central dark card #1A1A1A styled as PDF page. One long monospace text line: '0047 15.Mar.2026 FV-2026-0312 10.Mar.2026 DIST AGRO SRL RO27364819 0,00 850,00 0,00 714,29 135,71 0,00 0,00 850,00 0,00 0,00 0,00 850,00'. Orange annotation arrows pointing to different segments of the line with labels: 'NIR' / 'Data NIR' / 'Nr. Factură' / 'Furnizor' / 'CUI' / '12 valori financiare'. Flat vector, monospace font. Romanian text."
+    },
+    {
+      "number": 3,
+      "role": "detail",
+      "headline": "TVA zero nu înseamnă mereu același lucru",
+      "body": "Dacă TVA = 0 și furnizorul e nerezident → Optiune TVA: SCUTITE. Dacă TVA = 0 dar articolul e garanție SGR → SCUTITE, articol: SGR. Dacă TVA > 0 → TAXABILE. Toate detectate automat din context.",
+      "image_prompt": "Nano Banana Pro. Style: dark decision-tree diagram, Facebook 1:1. Background: solid #0F0F0F. Layout: top node 'TVA = 0?' in orange rounded rectangle, then two branches. Left branch (dashed arrow, label 'DA'): splits into two outcomes — orange pill 'Furnizor nerezident → SCUTITE' and orange pill 'Articol SGR → SCUTITE + SGR'. Right branch (solid arrow, label 'NU'): white pill 'TVA > 0 → TAXABILE'. Node and arrows in orange #FF6B00. Flat vector. Romanian text."
+    },
+    {
+      "number": 4,
+      "role": "after",
+      "headline": "Ce primești după procesare",
+      "body": "Încarci PDF-ul Centralizator Recepții. Primești un fișier cu CUI curat (fără \"RO\"), Optiune TVA completat corect per rând, și toate cele 43 de coloane în ordinea exactă cerută de software-ul de contabilitate.",
+      "image_prompt": "Nano Banana Pro. Style: dark success infographic, Facebook 1:1. Background: solid #0F0F0F. Layout: two cards side by side with orange arrow. Left card: dark, PDF icon, label 'Centralizatoare_Receptii_M1.pdf', three red tags: 'RO 27364819' / 'TVA=0 ???' / 'text nestructurat'. Right card: green #00C853, Excel icon, three green tags: '27364819 (curat)' / 'TAXABILE / SCUTITE' / '43 coloane ordonate'. Orange right arrow between cards. Flat vector. Romanian text."
+    },
+    {
+      "number": 5,
+      "role": "cta",
+      "headline": "Introduci recepțiile furnizorilor manual în fiecare lună?",
+      "body": "Trimite-mi un mesaj.",
+      "image_prompt": "Nano Banana Pro. Style: minimal dark CTA, Facebook 1:1. Background: solid #0F0F0F. Layout: vertically centered. Top: thin orange #FF6B00 horizontal line full width. Center: large bold white text 'Trimite-mi un mesaj.' 64px Inter Bold, period in orange #FF6B00. Below: small orange downward arrow icon. No other elements. Maximum whitespace. Romanian text only."
+    }
+  ]
+}

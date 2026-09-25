@@ -1,68 +1,53 @@
 # -*- mode: python ; coding: utf-8 -*-
-
-block_cipher = None
-
+# onedir build. Bundles the Python runtime + third-party deps only.
+# app/ and scripts/ are NOT bundled — they ship as loose source beside the exe
+# (see bootstrap.py) so updates are a file copy, not a rebuild.
 
 a = Analysis(
-    ['app/launcher.py'],
+    ['bootstrap.py'],
     pathex=['.'],
     binaries=[],
-    datas=[
-        ('app/templates', 'templates'),
-        ('app/static', 'static'),
-        ('app/assets', 'assets'),
-        ('app/modules', 'modules'),
-    ],
+    datas=[],
     hiddenimports=[
+        'flask',
         'pandas',
         'openpyxl',
         'openpyxl.cell._writer',
         'openpyxl.styles',
-        'werkzeug.serving',
+        'xlrd',
+        'pdfplumber',
+        'rich',
         'pystray',
+        'pystray._win32',
         'PIL',
-        'PIL._tkinter_finder',
-        'requests',
-        'packaging',
-        'app.modules.borderou.main',
-        'app.modules.borderou.borderou_to_import_transformer',
-        'app.modules.borderou.csv_cleaner',
-        'app.modules.borderou.csv_to_xlsx_converter',
-        'app.modules.borderou.to_csv',
-        'app.modules.cardcec.pos_processor',
-        'app.modules.cardcec.view_output',
-        'app.modules.cardcec.xlsx_to_csv',
-        'app.modules.core.valoare_sgr',
-        'app.modules.core.valoare_minus',
-        'app.modules.core.format_add_column',
-        'app.modules.core.excel_data_extractor',
-        'app.modules.core.excel_processor',
-        'app.modules.sales_transform.sales_transform',
+        'PIL.Image',
+        'werkzeug.serving',
     ],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=['torch', 'torchvision', 'torchaudio', 'tensorflow', 'matplotlib', 'scipy', 'pytest', 'unittest'],
-    win_no_prefer_redirects=False,
-    win_private_assemblies=False,
-    cipher=block_cipher,
+    excludes=['torch', 'torchvision', 'torchaudio', 'tensorflow', 'matplotlib', 'scipy', 'pytest'],
     noarchive=False,
 )
-pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
+pyz = PYZ(a.pure)
 exe = EXE(
     pyz,
     a.scripts,
-    a.binaries,
-    a.zipfiles,
-    a.datas,
     [],
+    exclude_binaries=True,
     name='ExcelProcessor',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
-    upx=True,
-    upx_exclude=[],
-    runtime_tmpdir=None,
+    upx=False,
     console=False,
-    icon='assets/icons/excel-processor-icon.ico',
+    icon='app/assets/icons/excel-processor-icon.ico',
+)
+coll = COLLECT(
+    exe,
+    a.binaries,
+    a.datas,
+    strip=False,
+    upx=False,
+    name='ExcelProcessor',
 )

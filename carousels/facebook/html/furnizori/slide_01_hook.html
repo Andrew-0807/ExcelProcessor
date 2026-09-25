@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<title>Furnizori – Slide 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1080px; height: 1080px;
+    overflow: hidden;
+    background: #0F0F0F;
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .slide {
+    width: 1080px; height: 1080px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 80px 96px 72px;
+    position: relative;
+  }
+
+  /* Top: label */
+  .label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: #FF6B00;
+  }
+
+  /* Middle: big number + context */
+  .center {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .big-number {
+    font-size: 260px;
+    font-weight: 900;
+    color: #FF6B00;
+    line-height: 0.85;
+    letter-spacing: -8px;
+    margin-bottom: 24px;
+  }
+
+  .big-label {
+    font-size: 52px;
+    font-weight: 800;
+    color: #FFFFFF;
+    line-height: 1.1;
+    margin-bottom: 16px;
+    letter-spacing: -1px;
+  }
+
+  .big-label em {
+    font-style: normal;
+    color: #FF6B00;
+  }
+
+  .sub {
+    font-size: 22px;
+    font-weight: 400;
+    color: #444;
+    line-height: 1.4;
+  }
+
+  /* Bottom: time cost pill */
+  .bottom-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .cost-pill {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255, 59, 59, 0.07);
+    border: 1px solid rgba(255, 59, 59, 0.2);
+    border-radius: 100px;
+    padding: 14px 28px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #FF5A5A;
+    letter-spacing: 0.3px;
+  }
+
+  .cost-pill .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #FF5A5A;
+    flex-shrink: 0;
+  }
+
+  .slide-num {
+    font-size: 13px;
+    font-weight: 500;
+    color: #252525;
+    letter-spacing: 1px;
+  }
+
+  .bottom-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #FF6B00 0%, rgba(255,107,0,0.2) 100%);
+  }
+</style>
+</head>
+<body>
+<div class="slide">
+  <div class="label">Recepții Furnizori · Automatizare Contabilă</div>
+
+  <div class="center">
+    <div class="big-number">40</div>
+    <div class="big-label">PDF-uri de la furnizori.<br><em>În fiecare lună.</em></div>
+    <div class="sub">Fiecare trebuie deschis, citit și introdus manual în contabilitate.<br>Câte ore îți ia?</div>
+  </div>
+
+  <div class="bottom-row">
+    <div class="cost-pill">
+      <div class="dot"></div>
+      ~8 ore de muncă manuală / lună
+    </div>
+    <div class="slide-num">1 / 5</div>
+  </div>
+
+  <div class="bottom-bar"></div>
+</div>
+</body>
+</html>

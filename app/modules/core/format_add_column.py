@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from app.log import info as print  # debug chatter; silent unless MOM_VERBOSE=1
 
 
 class FormatAddColumn:

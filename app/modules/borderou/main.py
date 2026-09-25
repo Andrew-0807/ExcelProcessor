@@ -25,6 +25,8 @@ from datetime import datetime
 import openpyxl
 import pandas as pd
 
+from app.log import info as print  # step/debug chatter; silent unless MOM_VERBOSE=1
+
 
 # ── Project root & directories ──────────────────────────────────────────────
 
@@ -43,16 +45,16 @@ TMP_DIR = os.path.join(PROJECT_ROOT, "tmp")
 FILE_TYPE_CONFIG = {
     "DEPOZIT": None,  # skip signal
     "FF1": ("F", 3, "ff 1", 5311, "FF1"),
-    "FF 2": ("F", 3, "FF 2", 5311, "FF2"),
-    "FF2": ("F", 3, "FF 2", 5311, "FF2"),
+    "FF 2": ("FF", 3, "FF 2", 5311, "FF2"),
+    "FF2": ("FF", 3, "FF 2", 5311, "FF2"),
     "AUTOS": ("A", 1, "autoservire", 5311, "AUTOS"),
     "REST": ("R", 2, "restaurant", 5311, "REST"),
     # ── Branch M ──────────────────────────────────────────
     # serie is a format string; {pos:04d} / {pos} is replaced with the POS number
     # extracted from the Explicatii column (column E) of each row.
-    "M1": ("BFM1 {pos:04d}", 1, "marfa m1 ", 53111, "M1"),
-    "M2": ("BFM2 {pos}", 2, "marfa m2 ", 53112, "M2"),
-    "M3": ("BFM3", 3, "marfa m3 ", 53113, "M3"),
+    "M1": ("BFM1 {pos:04d}", 1, "marfa m1", 53111, "M1"),
+    "M2": ("BFM2 {pos}", 2, "marfa m2", 53112, "M2"),
+    "M3": ("BFM3", 3, "marfa m3", 53113, "M3"),
 }
 
 
@@ -75,6 +77,27 @@ def _match_file_type(filename: str):
 
 def _output_filename(tag: str) -> str:
     return f"borderou - Borderou_de_Vanzare_({tag}).xlsx"
+
+
+def _no_rows_message(filename: str, is_pdf: bool) -> str:
+    """User-facing Romanian explanation for a borderou that yielded zero rows.
+
+    Worded like the sibling modules (e.g. the SGR "nu contine randuri de date"
+    message) so the failure reaches the user instead of an opaque HTTP 400.
+    """
+    if is_pdf:
+        return (
+            f"Borderoul '{filename}' nu contine randuri de date. "
+            "Nu a fost gasita nicio linie 'Z POS' cu numar de document si data "
+            "valida in PDF. Asigura-te ca ai incarcat un Borderou de Vanzare "
+            "(Incasare) valid, exportat ca PDF cu text (nu scanat sau imagine)."
+        )
+    return (
+        f"Borderoul '{filename}' nu contine randuri de date. "
+        "Nu a fost gasita nicio linie cu Nr. Doc(Z) numeric si data valida. "
+        "Asigura-te ca ai incarcat un Borderou de Vanzare (Incasare) valid, "
+        "cu antetul 'Total Valoare' (sau 'Valoare Totala') intact."
+    )
 
 
 # ── 53-column output header ─────────────────────────────────────────────────
@@ -154,16 +177,58 @@ def _excel_to_csv(xlsx_path: str, csv_path: str) -> None:
 # ── Step 2: Parse CSV → standardized rows ───────────────────────────────────
 
 
-def _is_data_row(cells: list) -> bool:
-    """Return True if the first cell is a valid integer (Nr. Crt)."""
-    v = cells[0]
-    if v is None or str(v).strip() == "":
-        return False
-    try:
-        int(float(str(v).strip()))
-        return True
-    except (ValueError, TypeError):
-        return False
+def _detect_flat_layout(rows: list) -> dict | None:
+    """Detect the newer *flat* single-header export layout.
+
+    This format has one header row (no multi-row sub-headers) like:
+      Data Document | Document | Nr. Doc | Explicatii | Valoare Totala |
+      Baza Impozitare | TVA | Baza Impozitare | TVA | ... | Valoare fara TVA E
+
+    Here data rows start immediately after the header and column 0 is the
+    *date* (not an Nr. Crt integer). Returns a layout dict, or None if this is
+    not the flat format.
+    """
+    for row in rows:
+        if row is None:
+            continue
+        # Anchor on the "Valoare Totala" header cell (distinct from the old
+        # format's "Total Valoare").
+        vt_col = None
+        for ci, cell in enumerate(row):
+            if cell and "Valoare Totala" in str(cell):
+                vt_col = ci
+                break
+        if vt_col is None:
+            continue
+
+        def find(label, default):
+            for ci, cell in enumerate(row):
+                if cell and label in str(cell):
+                    return ci
+            return default
+
+        # Netaxabil is the trailing "Valoare fara TVA" column when present.
+        netax = None
+        for ci, cell in enumerate(row):
+            if cell and "Valoare fara TVA" in str(cell):
+                netax = ci
+        if netax is None:
+            netax = vt_col + 9
+
+        return {
+            "_flat": True,
+            "Nr_Doc_Z": find("Nr. Doc", 2),
+            "Data": find("Data Document", 0),
+            "Explicatii": find("Explicatii", 3),
+            "Total_Valoare": vt_col,
+            # First Baza/TVA pair after Valoare Totala = 21%, second = 11%.
+            "Taxabile_21_Baza": vt_col + 1,
+            "Taxabile_21_TVA": vt_col + 2,
+            "Taxabile_11_Baza": vt_col + 3,
+            "Taxabile_11_TVA": vt_col + 4,
+            "Netaxabil_Baza": netax,
+        }
+    return None
 
 
 def _detect_column_layout(csv_path: str) -> dict:
@@ -172,7 +237,8 @@ def _detect_column_layout(csv_path: str) -> dict:
     Returns a dict mapping standardized field names to 0-based column indices.
 
     We look for the header row that contains "Total Valoare" and related
-    sub-header rows to map column positions.
+    sub-header rows to map column positions. If that multi-row-header format is
+    not found, we fall back to the newer flat single-header format.
     """
     with open(csv_path, "r", encoding="utf-8") as f:
         reader = csv.reader(f)
@@ -191,8 +257,8 @@ def _detect_column_layout(csv_path: str) -> dict:
             break
 
     if total_val_col is None:
-        # Fallback: return None, file is likely empty
-        return None
+        # Not the multi-row-header format — try the newer flat layout.
+        return _detect_flat_layout(rows)
 
     # Find Nr. Doc(Z) and Data columns. They are at fixed positions 2 and 3
     # in most variants, so use them directly.
@@ -262,6 +328,7 @@ def _detect_column_layout(csv_path: str) -> dict:
         return {
             "Nr_Doc_Z": nr_doc_col,
             "Data": data_col,
+            "Explicatii": 4,
             "Total_Valoare": 6,
             "Taxabile_21_Baza": 9,
             "Taxabile_21_TVA": 10,
@@ -274,6 +341,7 @@ def _detect_column_layout(csv_path: str) -> dict:
         return {
             "Nr_Doc_Z": nr_doc_col,
             "Data": data_col,
+            "Explicatii": 4,
             "Total_Valoare": 5,
             "Taxabile_21_Baza": 8,
             "Taxabile_21_TVA": 9,
@@ -287,6 +355,7 @@ def _detect_column_layout(csv_path: str) -> dict:
         return {
             "Nr_Doc_Z": nr_doc_col,
             "Data": data_col,
+            "Explicatii": 4,
             "Total_Valoare": tv,
             "Taxabile_21_Baza": tv + 3,
             "Taxabile_21_TVA": tv + 4,
@@ -327,19 +396,26 @@ def _parse_csv_to_rows(csv_path: str) -> list[dict] | None:
     with open(csv_path, "r", encoding="utf-8") as f:
         reader = csv.reader(f)
         for cells in reader:
-            if not _is_data_row(cells):
-                continue
 
             def col(name):
-                idx = col_layout[name]
+                idx = col_layout.get(name)
+                if idx is None:
+                    return None
                 return cells[idx] if idx < len(cells) else None
 
-            # Parse date
+            # A row is a data row only if it has a parseable date AND a numeric
+            # Nr. Doc(Z). This works across both the multi-row-header format
+            # (Nr. Crt in col 0) and the flat format (date in col 0), and also
+            # rejects header/total rows in either layout.
             raw_date = col("Data")
+            if raw_date is None or str(raw_date).strip() == "":
+                continue
             try:
                 dt = pd.to_datetime(raw_date)
             except Exception:
                 continue  # skip rows with unparseable dates
+            if pd.isna(dt):
+                continue
 
             # Skip rows where Nr. Doc(Z) is not a plain number (e.g. 'AMT 2539')
             nr_doc_raw = col("Nr_Doc_Z")
@@ -352,7 +428,7 @@ def _parse_csv_to_rows(csv_path: str) -> list[dict] | None:
                 {
                     "Nr_Doc_Z": nr_doc,
                     "Data": dt,
-                    "Explicatii": cells[4] if len(cells) > 4 else None,
+                    "Explicatii": col("Explicatii"),
                     "Total_Valoare": _safe_float(col("Total_Valoare")),
                     "Taxabile_21_Baza": _safe_float(col("Taxabile_21_Baza")),
                     "Taxabile_21_TVA": _safe_float(col("Taxabile_21_TVA")),
@@ -603,12 +679,19 @@ class BorderouPipeline:
         # ── PDF short-circuit: parse directly, no CSV step needed ──────────
         if excel_path.lower().endswith('.pdf'):
             try:
-                from app.modules.core.pdf_extractor import extract_borderou_rows_from_pdf
+                # Use the borderou-local PDF extractor (not the shared core one)
+                # because it preserves the per-row Explicatii / POS text that the
+                # M-branch needs to build the document serie (e.g. BFM1 0014).
+                try:
+                    from app.modules.borderou.pdf_borderou import (
+                        extract_borderou_rows_from_pdf,
+                    )
+                except ImportError:
+                    from pdf_borderou import extract_borderou_rows_from_pdf
                 print("   [1] Extracting rows from PDF...")
                 rows = extract_borderou_rows_from_pdf(excel_path)
                 if not rows:
-                    print(f"   WARNING: No data rows in PDF {filename}, skipping.")
-                    return "skipped"
+                    raise ValueError(_no_rows_message(filename, is_pdf=True))
                 print(f"       Found {len(rows)} data rows.")
                 print("   [2] Transforming to 53-column format...")
                 is_m_branch = out_tag in ("M1", "M2", "M3")
@@ -618,6 +701,11 @@ class BorderouPipeline:
                 _write_xlsx(df, out_path)
                 print(f"   OK: {_output_filename(out_tag)}")
                 return out_path
+            except ValueError:
+                # A ValueError carries a user-facing Romanian explanation —
+                # let it reach the caller instead of collapsing into a bare
+                # "no output" (which the server reports as an opaque HTTP 400).
+                raise
             except Exception as e:
                 print(f"   ERROR processing PDF: {e}")
                 import traceback
@@ -636,9 +724,8 @@ class BorderouPipeline:
             # ── Step 2: Parse CSV ──
             print("   [2] Parsing CSV...")
             rows = _parse_csv_to_rows(csv_path)
-            if rows is None:
-                print(f"   WARNING: No data rows in {filename}, skipping.")
-                return "skipped"
+            if not rows:
+                raise ValueError(_no_rows_message(filename, is_pdf=False))
             print(f"       Found {len(rows)} data rows.")
 
             # ── Step 3: Transform ──
@@ -653,6 +740,9 @@ class BorderouPipeline:
             print(f"   OK: {_output_filename(out_tag)}")
             return out_path
 
+        except ValueError:
+            # See the PDF branch: keep the Romanian explanation for the caller.
+            raise
         except Exception as e:
             print(f"   ERROR: {e}")
             import traceback

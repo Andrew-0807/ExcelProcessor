@@ -1,0 +1,40 @@
+{
+  "topic": "Borderou de Vânzare PDF/Excel → coloane SAGA în 2 minute",
+  "slides": [
+    {
+      "number": 1,
+      "role": "hook",
+      "headline": "Câte ore pe zi pierzi cu Borderoul de Vânzare?",
+      "body": "M1, M2, M3, FF1, FF2, Autoservire. Fiecare cu altă structură. Fiecare cu alt cont. Tu le procesezi pe toate manual?",
+      "image_prompt": "Nano Banana Pro. Style: dark infographic, Instagram 4:5. Background: solid #0F0F0F. Layout: centered vertical stack. Top: headline text 'BORDEROU DE VÂNZARE' in bold white 72px Inter font, orange #FF6B00 underline 4px. Middle: horizontal row of 6 small rounded rectangle file badges, each dark gray #1A1A1A with orange label text — badges read 'M1.pdf' 'M2.pdf' 'FF1.xlsx' 'FF2.xlsx' 'M3.pdf' 'AUTOS.xlsx'. Bottom-left corner: small orange clock icon with label '3h/zi' in white 14px. No gradients. No photos. Flat vector illustration style. Romanian text throughout."
+    },
+    {
+      "number": 2,
+      "role": "before",
+      "headline": "Realitatea unui borderou în format PDF",
+      "body": "Celule contopite. Coloane fără titlu. Nr. POS ascuns în câmpul de Explicații: \"Z emis la POS nr.14 la ora 15:23 - tranzacție #XYZ8842\". Copiezi manual în Excel, coloană cu coloană.",
+      "image_prompt": "Nano Banana Pro. Style: dark chaos infographic, Instagram 4:5. Background: solid #0F0F0F. Layout: left-right split with orange #FF6B00 diagonal line divider. Left side (60%): stylized table mockup with red-tinted overlay, showing merged cells in dashed red borders, missing column headers shown as gray '???' placeholders, one cell highlighted in red containing small text 'Z emis la POS nr.14 la ora 15:23 - tranzacție #XYZ8842'. Right side (40%): vertical list of three white label pills with red X icons: '❌ Celule contopite' '❌ Coloane fără titlu' '❌ POS ascuns în text'. Flat vector. Romanian text."
+    },
+    {
+      "number": 3,
+      "role": "detail",
+      "headline": "Un rând în borderou = două rânduri în SAGA",
+      "body": "TVA 21% și 11% trebuie separate. Cont diferit pentru fiecare locație: 76211 pentru M1, 76212 pentru M2, 76213 pentru M3. Seria documentului: BFM1 0042 sau BFM2 0042.",
+      "image_prompt": "Nano Banana Pro. Style: dark diagram, Instagram 4:5. Background: solid #0F0F0F. Layout: centered fork diagram. Top: one orange rounded rectangle labeled 'Rând borderou (TVA 21% + 11%)'. Below it: orange fork arrow splitting into two white rounded rectangles stacked vertically. Top output box: white text '21% TVA → Cont 76211 | Serie: BFM1 0042'. Bottom output box: white text '11% TVA → Cont 76212 | Serie: BFM2 0042'. Fork arrow in orange #FF6B00. Small label at top in orange: 'UN RÂND DEVINE DOUĂ'. Monospace font for account numbers. Clean flat vector. Romanian text."
+    },
+    {
+      "number": 4,
+      "role": "after",
+      "headline": "Ce primești după procesare",
+      "body": "Încarci borderoul — PDF sau Excel. Primești un fișier cu toate coloanele gata de import în SAGA. Date formatate corect. Conturi completate automat per locație. TVA split fără niciun calcul manual.",
+      "image_prompt": "Nano Banana Pro. Style: dark success infographic, Instagram 4:5. Background: solid #0F0F0F. Layout: left-right with centered orange arrow. Left: dark card #1A1A1A with upload icon and filename label 'M1_Borderou_de_Vanzare.pdf' in white. Right: bright green #00C853 card with checklist: '✅ Coloane complete' '✅ TVA split automat' '✅ Cont 76211 completat' '✅ Data: 20260315'. Orange right-pointing arrow #FF6B00 between cards. Top-right badge: orange pill '2 minute'. Flat vector. Romanian text."
+    },
+    {
+      "number": 5,
+      "role": "cta",
+      "headline": "Procesezi borderou manual în fiecare lună?",
+      "body": "Trimite-mi un mesaj.",
+      "image_prompt": "Nano Banana Pro. Style: minimal dark CTA, Instagram 4:5. Background: solid #0F0F0F. Layout: vertically centered. Top: thin orange #FF6B00 horizontal line full width. Center: large bold white text 'Trimite-mi un mesaj.' 64px Inter Bold, period in orange #FF6B00. Below text: small orange downward arrow icon. No other elements. Maximum whitespace. Romanian text only."
+    }
+  ]
+}

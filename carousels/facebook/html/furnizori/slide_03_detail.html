@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<title>Furnizori – Slide 3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1080px; height: 1080px;
+    overflow: hidden;
+    background: #0F0F0F;
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .slide {
+    width: 1080px; height: 1080px;
+    display: flex; flex-direction: column;
+    padding: 72px 96px 72px;
+    position: relative;
+  }
+
+  .label {
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 4px; text-transform: uppercase;
+    color: #FF6B00; margin-bottom: 24px;
+  }
+
+  .headline {
+    font-size: 40px; font-weight: 900;
+    color: #FFFFFF; line-height: 1.1; margin-bottom: 6px;
+  }
+
+  .headline em { font-style: normal; color: #FF6B00; }
+
+  .sub {
+    font-size: 17px; color: #444; margin-bottom: 40px;
+  }
+
+  /* Two columns */
+  .transform {
+    flex: 1;
+    display: flex;
+    gap: 20px;
+    align-items: stretch;
+    margin-bottom: 28px;
+  }
+
+  .col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .col-title {
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 3px; text-transform: uppercase;
+    margin-bottom: 6px; padding-bottom: 12px;
+    border-bottom: 1px solid;
+  }
+  .col-title.before { color: #FF4444; border-color: rgba(255,68,68,0.2); }
+  .col-title.after  { color: #00C853; border-color: rgba(0,200,83,0.2); }
+
+  .field-row {
+    display: flex;
+    flex-direction: column;
+    background: #111;
+    border-radius: 10px;
+    padding: 14px 18px;
+    gap: 4px;
+    border-left: 3px solid transparent;
+  }
+
+  .field-row.before { border-left-color: rgba(255,68,68,0.4); }
+  .field-row.after  { border-left-color: rgba(0,200,83,0.4); }
+
+  .field-name {
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    color: #333;
+  }
+
+  .field-val {
+    font-family: 'Courier New', monospace;
+    font-size: 15px; font-weight: 700;
+  }
+
+  .field-val.bad   { color: #666; }
+  .field-val.good  { color: #EEEEEE; }
+  .field-val.fixed { color: #00C853; }
+
+  .field-note {
+    font-size: 11px; font-weight: 500;
+    color: #444; margin-top: 2px;
+  }
+  .field-note.warn { color: #FF5A5A; }
+  .field-note.ok   { color: rgba(0,200,83,0.7); }
+
+  /* Center arrow */
+  .center-arrow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 48px;
+    gap: 4px;
+    padding-top: 32px;
+  }
+
+  .arrow-line {
+    width: 2px; flex: 1;
+    background: linear-gradient(180deg, transparent, #FF6B00 20%, #FF6B00 80%, transparent);
+    min-height: 400px;
+  }
+
+  .arrow-head {
+    font-size: 22px; color: #FF6B00; line-height: 1;
+  }
+
+  /* Bottom note */
+  .bottom-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .accuracy-pill {
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(0,200,83,0.06);
+    border: 1px solid rgba(0,200,83,0.2);
+    border-radius: 100px;
+    padding: 12px 24px;
+    font-size: 14px; font-weight: 700;
+    color: #00C853;
+  }
+
+  .slide-num {
+    font-size: 13px; font-weight: 500;
+    color: #252525; letter-spacing: 1px;
+  }
+
+  .bottom-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, #FF6B00 0%, rgba(255,107,0,0.2) 100%);
+  }
+</style>
+</head>
+<body>
+<div class="slide">
+
+  <div class="label">Recepții Furnizori · Transformarea</div>
+  <div class="headline">Același rând.<br><em>Înainte și după.</em></div>
+  <div class="sub">Fiecare câmp extras, curățat și clasificat automat.</div>
+
+  <div class="transform">
+
+    <!-- BEFORE column -->
+    <div class="col">
+      <div class="col-title before">▸ Input brut (PDF)</div>
+
+      <div class="field-row before">
+        <div class="field-name">NIR + Data NIR</div>
+        <div class="field-val bad">0047&nbsp;&nbsp;15.Mar.2026</div>
+        <div class="field-note warn">nedespărțite, neformatate</div>
+      </div>
+
+      <div class="field-row before">
+        <div class="field-name">Număr factură + Dată doc.</div>
+        <div class="field-val bad">FV-2026-0312&nbsp;&nbsp;10.Mar.2026</div>
+        <div class="field-note warn">pe același rând, fără separator</div>
+      </div>
+
+      <div class="field-row before">
+        <div class="field-name">Furnizor + CUI</div>
+        <div class="field-val bad">DIST AGRO SRL&nbsp;&nbsp;RO27364819</div>
+        <div class="field-note warn">CUI cu prefix „RO" — 3 variante posibile</div>
+      </div>
+
+      <div class="field-row before">
+        <div class="field-name">Clasificare TVA</div>
+        <div class="field-val bad">0,00 (din 12 valori)</div>
+        <div class="field-note warn">SCUTITE sau SGR? — de decis manual</div>
+      </div>
+
+      <div class="field-row before">
+        <div class="field-name">Valoare neta + TVA</div>
+        <div class="field-val bad">850,00&nbsp;&nbsp;714,29&nbsp;&nbsp;135,71</div>
+        <div class="field-note warn">care coloană e care?</div>
+      </div>
+    </div>
+
+    <!-- Arrow -->
+    <div class="center-arrow">
+      <div class="arrow-line"></div>
+      <div class="arrow-head">▼</div>
+    </div>
+
+    <!-- AFTER column -->
+    <div class="col">
+      <div class="col-title after">▸ Output (Excel SAGA)</div>
+
+      <div class="field-row after">
+        <div class="field-name">NIR · Data NIR</div>
+        <div class="field-val good">0047&nbsp;&nbsp;</div>
+        <div class="field-val fixed">20260315</div>
+        <div class="field-note ok">câmpuri separate, dată AAAAZZLL</div>
+      </div>
+
+      <div class="field-row after">
+        <div class="field-name">Nr. Factură · Dată Document</div>
+        <div class="field-val good">FV-2026-0312&nbsp;&nbsp;</div>
+        <div class="field-val fixed">20260310</div>
+        <div class="field-note ok">extrase corect, formatate</div>
+      </div>
+
+      <div class="field-row after">
+        <div class="field-name">Furnizor · Cod Fiscal</div>
+        <div class="field-val good">DIST AGRO SRL&nbsp;&nbsp;</div>
+        <div class="field-val fixed">27364819</div>
+        <div class="field-note ok">CUI normalizat, fără „RO"</div>
+      </div>
+
+      <div class="field-row after">
+        <div class="field-name">Optiune TVA</div>
+        <div class="field-val fixed">SCUTITE</div>
+        <div class="field-note ok">detectat automat din context</div>
+      </div>
+
+      <div class="field-row after">
+        <div class="field-name">Valoare fara TVA · Val. TVA</div>
+        <div class="field-val fixed">714,29&nbsp;&nbsp;135,71</div>
+        <div class="field-note ok">mapate la coloanele corecte</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="bottom-row">
+    <div class="accuracy-pill">✓ 43 coloane completate · zero câmpuri lipsă</div>
+    <div class="slide-num">3 / 5</div>
+  </div>
+
+  <div class="bottom-bar"></div>
+</div>
+</body>
+</html>

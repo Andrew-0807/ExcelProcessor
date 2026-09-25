@@ -1,0 +1,40 @@
+{
+  "topic": "Bonuri RetuRO-SGR din PDF text → înregistrare contabilă",
+  "slides": [
+    {
+      "number": 1,
+      "role": "hook",
+      "headline": "RetuRO îți dă un PDF cu text, nu un tabel. Cum îl bagi în contabilitate?",
+      "body": "Nu există coloane de extras. Nu există tabel. Sunt rânduri de text cu sume, date și numere de voucher amestecate. Tu le copiezi manual?",
+      "image_prompt": "Nano Banana Pro. Style: dark infographic, Instagram 4:5. Background: solid #0F0F0F. Layout: centered. Top: orange label 'PDF RetuRO-SGR'. Middle: large dark card #1A1A1A styled as a PDF page, containing three lines of monospace white text simulating real PDF output: 'Plata Voucher 847291 02-Mar-26' / 'Returnare garantie SGR 1.234,56 RON' / 'In perioada: 01.01.2026 - 31.03.2026'. Bottom: red pill '❌ Niciun tabel de extras'. Orange #FF6B00 corner accent top-right. Flat vector, monospace font for PDF lines. Romanian text."
+    },
+    {
+      "number": 2,
+      "role": "before",
+      "headline": "Ce complică lucrurile și mai mult",
+      "body": "Suma e în format românesc: punct pentru mii, virgulă pentru zecimale — 1.234,56 nu e același lucru cu 1,234.56. Anul fiscal e ascuns într-un rând de antet: \"In perioada: 01.01.2026\".",
+      "image_prompt": "Nano Banana Pro. Style: dark annotation infographic, Instagram 4:5. Background: solid #0F0F0F. Layout: large central dark card with two annotation callouts. Card: monospace text line 'Returnare garantie SGR 1.234,56 RON'. Callout 1 (pointing to number): orange arrow + orange bubble 'punct = mii, virgulă = zecimale'. Second text line on card: 'In perioada: 01.01.2026 - 31.03.2026'. Callout 2 (pointing to year): orange arrow + orange bubble 'Anul fiscal ascuns aici'. All callout bubbles orange #FF6B00 with white text. Flat vector, monospace font. Romanian text."
+    },
+    {
+      "number": 3,
+      "role": "detail",
+      "headline": "Ce se întâmplă la procesare",
+      "body": "Fiecare rând \"Plata Voucher\" devine o înregistrare contabilă. Cont debit: 76211. Cont credit: 3847. Informații export: 20260101-20261231-SoftAcc_4472 — completate automat cu anul detectat din PDF.",
+      "image_prompt": "Nano Banana Pro. Style: dark transformation diagram, Instagram 4:5. Background: solid #0F0F0F. Layout: top-to-bottom flow with orange arrows. Top box: orange rounded rectangle, monospace text 'Plata Voucher 847291 02-Mar-26 ... 1.234,56 RON'. Arrow down labeled 'extras automat din text'. Middle box: white rounded rectangle, structured data: 'Data: 20260302' / 'Cont debit: 76211' / 'Cont credit: 3847' / 'Valoare: 1.234,56' / 'Info export: 20260101-20261231-SoftAcc_4472'. All in clean Inter/monospace mix. Romanian text."
+    },
+    {
+      "number": 4,
+      "role": "after",
+      "headline": "Ce primești după procesare",
+      "body": "Încarci PDF-ul RetuRO. Primești un Excel cu toate coloanele completate: conturi debit/credit corecte, an fiscal 2026 detectat automat, sume parsate corect din format românesc.",
+      "image_prompt": "Nano Banana Pro. Style: dark success infographic, Instagram 4:5. Background: solid #0F0F0F. Layout: two cards side by side with orange arrow. Left card: dark #1A1A1A, PDF icon, label 'Garantii_SGR_Q1.pdf', red sub-label 'text nestructurat'. Right card: green #00C853, Excel icon, checklist: '✅ Cont 76211 / 3847' '✅ An: 2026 detectat automat' '✅ Sumă: 1.234,56 (format RO)' '✅ Info export completat'. Orange right arrow #FF6B00 between cards. Flat vector. Romanian text."
+    },
+    {
+      "number": 5,
+      "role": "cta",
+      "headline": "Introduci SGR-ul manual în fiecare trimestru?",
+      "body": "Trimite-mi un mesaj.",
+      "image_prompt": "Nano Banana Pro. Style: minimal dark CTA, Instagram 4:5. Background: solid #0F0F0F. Layout: vertically centered. Top: thin orange #FF6B00 horizontal line full width. Center: large bold white text 'Trimite-mi un mesaj.' 64px Inter Bold, period in orange #FF6B00. Below: small orange downward arrow icon. No other elements. Maximum whitespace. Romanian text only."
+    }
+  ]
+}

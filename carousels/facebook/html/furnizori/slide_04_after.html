@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<title>Furnizori – Slide 4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1080px; height: 1080px;
+    overflow: hidden;
+    background: #0F0F0F;
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .slide {
+    width: 1080px; height: 1080px;
+    display: flex; flex-direction: column;
+    padding: 72px 96px 72px;
+    position: relative;
+  }
+
+  .label {
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 4px; text-transform: uppercase;
+    color: #FF6B00; margin-bottom: 28px;
+  }
+
+  /* Big stat block */
+  .stat-block {
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+    margin-bottom: 8px;
+  }
+
+  .stat-number {
+    font-size: 160px;
+    font-weight: 900;
+    color: #FF6B00;
+    line-height: 0.85;
+    letter-spacing: -4px;
+  }
+
+  .stat-unit {
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 14px;
+    gap: 6px;
+  }
+
+  .stat-unit-main {
+    font-size: 40px;
+    font-weight: 800;
+    color: #FFFFFF;
+    line-height: 1;
+    letter-spacing: -1px;
+  }
+
+  .stat-unit-sub {
+    font-size: 18px;
+    font-weight: 400;
+    color: #444;
+  }
+
+  .time-compare {
+    font-size: 20px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 44px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .time-before {
+    font-weight: 700;
+    color: #FF5A5A;
+    text-decoration: line-through;
+    text-decoration-color: rgba(255, 90, 90, 0.5);
+  }
+
+  .time-arrow { color: #FF6B00; font-weight: 700; }
+
+  .time-after {
+    font-weight: 800;
+    color: #FFFFFF;
+  }
+
+  /* Guarantee grid */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    flex: 1;
+    margin-bottom: 28px;
+  }
+
+  .guarantee {
+    background: #0D0D0D;
+    border: 1px solid #1C1C1C;
+    border-radius: 14px;
+    padding: 24px 26px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .g-icon {
+    font-size: 22px;
+    line-height: 1;
+  }
+
+  .g-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #FFFFFF;
+    line-height: 1.2;
+  }
+
+  .g-desc {
+    font-size: 13px;
+    font-weight: 400;
+    color: #444;
+    line-height: 1.4;
+  }
+
+  /* Bottom */
+  .bottom-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid #181818;
+    padding-top: 24px;
+  }
+
+  .saga-pill {
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(0,200,83,0.06);
+    border: 1px solid rgba(0,200,83,0.2);
+    border-radius: 100px;
+    padding: 12px 24px;
+    font-size: 14px; font-weight: 700; color: #00C853;
+  }
+
+  .slide-num {
+    font-size: 13px; font-weight: 500;
+    color: #252525; letter-spacing: 1px;
+  }
+
+  .bottom-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, #FF6B00 0%, rgba(255,107,0,0.2) 100%);
+  }
+</style>
+</head>
+<body>
+<div class="slide">
+
+  <div class="label">Recepții Furnizori · Rezultatul</div>
+
+  <div class="stat-block">
+    <div class="stat-number">40</div>
+    <div class="stat-unit">
+      <div class="stat-unit-main">fișiere procesate</div>
+      <div class="stat-unit-sub">în loc de 8 ore</div>
+    </div>
+  </div>
+
+  <div class="time-compare">
+    <span class="time-before">~8 ore muncă manuală</span>
+    <span class="time-arrow">→</span>
+    <span class="time-after">sub 3 minute</span>
+  </div>
+
+  <div class="grid">
+
+    <div class="guarantee">
+      <div class="g-icon">✓</div>
+      <div class="g-title">Zero erori de format</div>
+      <div class="g-desc">CUI curat, date AAAAZZLL, valori la coloanele corecte — de fiecare dată</div>
+    </div>
+
+    <div class="guarantee">
+      <div class="g-icon">✓</div>
+      <div class="g-title">TVA clasificat corect</div>
+      <div class="g-desc">SCUTITE sau TAXABILE decis automat — fără risc de confuzie manuală</div>
+    </div>
+
+    <div class="guarantee">
+      <div class="g-icon">✓</div>
+      <div class="g-title">43 coloane exacte</div>
+      <div class="g-desc">Același schema la fiecare export — software-ul de contabilitate importă fără erori</div>
+    </div>
+
+    <div class="guarantee">
+      <div class="g-icon">✓</div>
+      <div class="g-title">PDF sau Excel — ambele</div>
+      <div class="g-desc">Indiferent de formatul primit de la furnizor, outputul e identic</div>
+    </div>
+
+  </div>
+
+  <div class="bottom-row">
+    <div class="saga-pill">↗ Gata de import în software-ul de contabilitate</div>
+    <div class="slide-num">4 / 5</div>
+  </div>
+
+  <div class="bottom-bar"></div>
+</div>
+</body>
+</html>

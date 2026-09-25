@@ -168,25 +168,4 @@ class SalesTransformProcessor:
         except Exception as e:
             raise Exception(f"Error processing sales data: {str(e)}")
 
-    def get_supported_extensions(self) -> list:
-        """Return list of supported file extensions."""
-        return [".xlsx", ".xls", ".csv"]
 
-    def validate_input(self, df: pd.DataFrame) -> tuple[bool, Optional[str]]:
-        """Validate input dataframe format."""
-        try:
-            # Check for minimum required columns
-            min_columns = ["data", "nr_iesire", "tert", "valoare"]
-            missing = [col for col in min_columns if col not in df.columns]
-
-            if missing:
-                return False, f"Missing required columns: {', '.join(missing)}"
-
-            # Check if dataframe has data
-            if df.empty:
-                return False, "Input dataframe is empty"
-
-            return True, None
-
-        except Exception as e:
-            return False, f"Validation error: {str(e)}"

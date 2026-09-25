@@ -69,10 +69,11 @@ OUTPUT_COLUMNS = [
 ]
 assert len(OUTPUT_COLUMNS) == 43
 
-# PDF date token: DD.Mon.YY or DD.Mon.YYYY  (e.g. "02.Mar.26")
-_DATE_TOK = re.compile(r'^\d{1,2}\.\w{3,4}\.\d{2,4}$')
+# PDF date token: DD.Mon.YY / DD.Mon.YYYY (e.g. "02.Mar.26")
+#                  or DD.MM.YYYY (e.g. "01.04.2026") — used by M2/M3/M4
+_DATE_TOK = re.compile(r'^\d{1,2}\.\w{2,4}\.\d{2,4}$')
 # Data rows begin: integer  date-token
-_DATA_ROW = re.compile(r'^\d+\s+\d{1,2}\.\w{3,4}\.\d{2,4}')
+_DATA_ROW = re.compile(r'^\d+\s+\d{1,2}\.\w{2,4}\.\d{2,4}')
 # CUI patterns
 _CUI_COMPACT = re.compile(r'^RO\d+$', re.IGNORECASE)   # "RO8119423"
 _CUI_DIGITS  = re.compile(r'^\d{6,13}$')               # bare digits (CUI or CNP)
@@ -202,7 +203,7 @@ class ReceptiiExtractor:
                     row["Nume partener"]    = parsed['nume']
                     row["Cod fiscal"]       = parsed['cod_fiscal']
                     row["Moneda"]           = "RON"
-                    row["Denumire articol"] = f"marfa {period} {cota}%"
+                    row["Denumire articol"] = "SGR" if cota == 0 else f"marfa {period} {cota}%"
                     row["Cantitate"]        = "1"
                     row["Pret de lista"]    = parsed['pret_lista']
                     row["Optiune TVA"]      = optiune

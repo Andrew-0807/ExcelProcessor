@@ -1,6 +1,8 @@
 import re
 import pandas as pd
-from loguru import logger
+import logging
+from app.log import info as print  # debug chatter; silent unless MOM_VERBOSE=1
+logger = logging.getLogger(__name__)
 
 
 class ExcelDataExtractor:
@@ -195,21 +197,12 @@ class ExcelDataExtractor:
     def _convert_date(self, date_value) -> str:
         if date_value is None:
             return ""
-        parts = str(date_value).split()
-        return "".join(parts[0].split("-"))
+        return pd.to_datetime(date_value).strftime("%Y%m%d")
 
     def _process_tva_logic(self, code, row, tipMarfa, tva_field) -> None:
         try:
             tva_value = int(str(row.get(tva_field, "0")).replace(",", ".") or "0")
-            if not str(code).startswith("RO") and tva_value == 0:
-                procent_tva = int(
-                    str(row.get("Procent TVA", row.get("% TVA Ach", "0")))
-                    .replace(",", ".")
-                    or "0"
-                )
-                article = f"{tipMarfa.strip()} {procent_tva}%"
-                tva_option = "SCUTITE"
-            elif tva_value == 0:
+            if tva_value == 0:
                 article = "SGR"
                 tva_option = "SCUTITE"
             else:

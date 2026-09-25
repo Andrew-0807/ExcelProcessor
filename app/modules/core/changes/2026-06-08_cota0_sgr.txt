@@ -1,0 +1,12 @@
+2026-06-08 — COTA 0 must be SGR, not "marfa REC 0%"
+
+Files changed:
+  - excel_data_extractor.py
+  - receptii_extractor.py
+
+Before: When TVA/cota was 0 and CUI didn't start with "RO", Denumire articol
+was set to e.g. "marfa REC 0%" or "marfa autoservire 0%". Only RO-prefixed
+CUI rows with cota 0 got "SGR".
+
+After: All cota 0 rows now produce "SGR" as Denumire articol regardless of CUI.
+Non-zero cota rows are unchanged (including AMT/AMATO filename logic).

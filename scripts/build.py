@@ -47,8 +47,8 @@ def check_dependencies():
         "flask": "flask",
         "pystray": "pystray",
         "Pillow": "PIL",
-        "requests": "requests",
-        "packaging": "packaging",
+        "pdfplumber": "pdfplumber",
+        "rich": "rich",
     }
     missing = []
 
@@ -100,10 +100,39 @@ def build_exe():
     print("Build successful!")
 
 
+def get_exe_path() -> Path:
+    """Return the output executable path (checks onedir first, then onefile)."""
+    onedir_exe = Path("dist/ExcelProcessor/ExcelProcessor.exe")
+    if onedir_exe.exists():
+        return onedir_exe
+    return Path("dist/ExcelProcessor.exe")
+
+
+def copy_source_to_dist() -> None:
+    """Copy loose source files (app/, scripts/) next to the onedir executable."""
+    dist_dir = Path("dist/ExcelProcessor")
+    if not dist_dir.exists():
+        return
+
+    print("\nCopying application source to dist...")
+    for folder in ["app", "scripts"]:
+        src = Path(folder)
+        dst = dist_dir / folder
+        if src.exists():
+            if dst.exists():
+                shutil.rmtree(dst)
+            shutil.copytree(
+                src,
+                dst,
+                ignore=shutil.ignore_patterns("__pycache__", "*.pyc"),
+            )
+            print(f"  [OK] Copied {folder}/ -> {dst}")
+
+
 def verify_build():
     """Verify the built executable exists and get its size."""
     print("\nVerifying build...")
-    exe_path = Path("dist/ExcelProcessor.exe")
+    exe_path = get_exe_path()
 
     if not exe_path.exists():
         print(f"Error: Executable not found at {exe_path}")
@@ -120,7 +149,7 @@ def create_build_info():
     """Create a build info file with metadata."""
     print("\nCreating build info...")
 
-    exe_path = Path("dist/ExcelProcessor.exe")
+    exe_path = get_exe_path()
     size_mb = exe_path.stat().st_size / (1024 * 1024)
 
     # Read version from app_info.py
@@ -145,7 +174,7 @@ Executable Size: {size_mb:.2f} MB
 Build completed successfully!
 """
 
-    info_path = Path("dist/BUILD_INFO.txt")
+    info_path = exe_path.parent / "BUILD_INFO.txt"
     info_path.write_text(build_info)
     print(f"  [OK] Build info created: {info_path}")
 
@@ -165,17 +194,19 @@ def main():
     check_dependencies()
     clean_build()
     build_exe()
+    copy_source_to_dist()
 
     if verify_build():
         create_build_info()
 
+        exe_path = get_exe_path()
         print("\n" + "=" * 60)
         print("BUILD COMPLETE!")
         print("=" * 60)
-        print(f"\nExecutable location: {Path('dist/ExcelProcessor.exe').absolute()}")
+        print(f"\nExecutable location: {exe_path.absolute()}")
         print("\nTo test the executable:")
-        print("  1. Navigate to dist/")
-        print("  2. Double-click ExcelProcessor.exe")
+        print(f"  1. Navigate to {exe_path.parent}")
+        print(f"  2. Double-click {exe_path.name}")
         print("  3. The app should start and open in your browser")
     else:
         print("\nBuild verification failed!")

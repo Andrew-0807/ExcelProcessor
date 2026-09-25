@@ -18,6 +18,17 @@ document.addEventListener('DOMContentLoaded', () => {
     card.style.setProperty('--index', i);
   });
 
+  // Show the 'Nr. inreg.' start field for the modes that fill it (CardCec, SGR, RetuRO).
+  function toggleCardcecOptions() {
+    const opts = document.getElementById('cardcec-options');
+    if (!opts) return;
+    const selected = document.querySelector('input[name="process_type"]:checked');
+    opts.hidden = !(selected && (selected.value === 'cardcec' || selected.value === 'sgr' || selected.value === 'returo'));
+  }
+  document.querySelectorAll('input[name="process_type"]').forEach(r =>
+    r.addEventListener('change', toggleCardcecOptions));
+  toggleCardcecOptions();
+
   // Track whether the user has explicitly chosen a process type.
   // We listen on the label cards (not just the hidden radio inputs) because
   // clicking a <label> doesn't always fire a reliable 'change' on the radio.
@@ -93,6 +104,100 @@ document.addEventListener('DOMContentLoaded', () => {
     helpModal.setAttribute('aria-hidden', 'true');
   }
 
+  // ── Report-a-problem modal ──
+  const reportBtn = document.getElementById('reportBtn');
+  const reportModal = document.getElementById('report-modal');
+  if (reportBtn && reportModal) {
+    const reportDescription = document.getElementById('reportDescription');
+    const reportFileInput = document.getElementById('reportFileInput');
+    const reportFileHint = document.getElementById('reportFileHint');
+    const reportSubmitBtn = document.getElementById('reportSubmitBtn');
+    const reportMessage = document.getElementById('report-message');
+    const reportCloseBtn = reportModal.querySelector('.report-modal-close');
+    const reportOverlay = reportModal.querySelector('.modal-overlay');
+
+    function setReportMessage(text, type) {
+      reportMessage.textContent = text || '';
+      reportMessage.className = 'report-message' + (type ? ' ' + type : '');
+    }
+
+    function updateReportHint() {
+      const count = reportFileInput.files.length;
+      if (count === 1) {
+        reportFileHint.textContent = `Atașat: ${reportFileInput.files[0].name}`;
+      } else if (count > 1) {
+        reportFileHint.textContent = `${count} fișiere atașate`;
+      } else {
+        reportFileHint.textContent = 'Poți atașa fișierul care a cauzat eroarea.';
+      }
+    }
+
+    function openReportModal() {
+      setReportMessage('');
+      // Pre-attach whatever the user already selected in the main drop area so
+      // "send the file with the error" needs no extra clicks.
+      if (fileInput.files && fileInput.files.length) {
+        const dt = new DataTransfer();
+        Array.from(fileInput.files).forEach(f => dt.items.add(f));
+        reportFileInput.files = dt.files;
+      }
+      updateReportHint();
+      reportModal.classList.add('show');
+      reportModal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeReportModal() {
+      reportModal.classList.remove('show');
+      reportModal.setAttribute('aria-hidden', 'true');
+    }
+
+    reportBtn.addEventListener('click', openReportModal);
+    if (reportCloseBtn) reportCloseBtn.addEventListener('click', closeReportModal);
+    if (reportOverlay) reportOverlay.addEventListener('click', closeReportModal);
+    reportFileInput.addEventListener('change', updateReportHint);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && reportModal.classList.contains('show')) {
+        closeReportModal();
+      }
+    });
+
+    reportSubmitBtn.addEventListener('click', () => {
+      const description = reportDescription.value.trim();
+      if (!description && reportFileInput.files.length === 0) {
+        setReportMessage('Adaugă o descriere sau atașează un fișier.', 'error');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('description', description);
+      const selectedType = document.querySelector('input[name="process_type"]:checked');
+      if (selectedType) formData.append('process_type', selectedType.value);
+      Array.from(reportFileInput.files).forEach(f => formData.append('file', f));
+
+      reportSubmitBtn.disabled = true;
+      setReportMessage('Se trimite...', '');
+
+      fetch('/report-problem', { method: 'POST', body: formData })
+        .then(response => response.json().then(data => ({ ok: response.ok, data })))
+        .then(({ ok, data }) => {
+          if (!ok) throw new Error((data && data.message) || 'Trimiterea a eșuat.');
+          setReportMessage((data && data.message) || 'Raportul a fost trimis. Mulțumim!', 'success');
+          reportDescription.value = '';
+          reportFileInput.value = '';
+          updateReportHint();
+          setTimeout(closeReportModal, 1800);
+        })
+        .catch(err => {
+          console.error('[ExcelProcessor] Report failed:', err);
+          setReportMessage(err.message || 'Ceva nu a funcționat. Încearcă din nou.', 'error');
+        })
+        .finally(() => {
+          reportSubmitBtn.disabled = false;
+        });
+    });
+  }
+
   function preventDefaults(e) {
     e.preventDefault();
     e.stopPropagation();
@@ -120,14 +225,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const subText = dropArea.querySelector('.sub-text');
     
     if (fileCount === 1) {
-      mainText.textContent = `1 file selected - Ready to process!`;
-      subText.textContent = 'Click to add more files or change selection';
+      mainText.textContent = `1 fișier selectat - Gata de procesare!`;
+      subText.textContent = 'Click pentru a adăuga mai multe fișiere sau a schimba selecția';
     } else if (fileCount > 1) {
-      mainText.textContent = `${fileCount} files selected - Ready to process!`;
-      subText.textContent = 'Click to add more files or change selection';
+      mainText.textContent = `${fileCount} fișiere selectate - Gata de procesare!`;
+      subText.textContent = 'Click pentru a adăuga mai multe fișiere sau a schimba selecția';
     } else {
-      mainText.textContent = 'Drag & Drop your files here';
-      subText.textContent = 'or click to browse';
+      mainText.textContent = 'Trage și plasează fișierele aici';
+      subText.textContent = 'sau click pentru a selecta';
     }
   }
 
@@ -135,6 +240,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!fileList) return;
     
     fileList.innerHTML = '';
+
+    if (files.length === 0) {
+      const emptyMsg = document.createElement('p');
+      emptyMsg.className = 'file-list-empty';
+      emptyMsg.textContent = 'Niciun fișier selectat';
+      fileList.appendChild(emptyMsg);
+      return;
+    }
     
     // Auto-match process type based on first file name, but only if the user
     // hasn't already made a manual selection.
@@ -146,6 +259,8 @@ document.addEventListener('DOMContentLoaded', () => {
         processType = 'borderou';
       } else if (fileName.includes('pos') || fileName.includes('incasari')) {
         processType = 'cardcec';
+      } else if (fileName.includes('aviz')) {
+        processType = 'avize';
       }
 
       if (processType) {
@@ -154,6 +269,7 @@ document.addEventListener('DOMContentLoaded', () => {
           radio.checked = true;
         }
       }
+      toggleCardcecOptions();
     }
     
     Array.from(files).forEach(file => {
@@ -186,10 +302,9 @@ document.addEventListener('DOMContentLoaded', () => {
   processBtn.addEventListener('click', () => {
     const files = fileInput.files;
     const processType = document.querySelector('input[name="process_type"]:checked').value;
-    console.log('Processing files...');
     
     if (!files.length) {
-      showMessage('Please select a file.', 'error');
+      showMessage('Te rog selectează un fișier.', 'error');
       return;
     }
   
@@ -204,7 +319,15 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('file', files[i]);
     }
     formData.append('process_type', processType);
-  
+    if (processType === 'cardcec' || processType === 'sgr' || processType === 'returo') {
+      const startNr = document.getElementById('startNrInput').value.trim();
+      if (startNr) formData.append('start_nr', startNr);
+    }
+
+    // Per-file errors from a partially successful run, shown to the user after
+    // the download completes.
+    let partialErrors = [];
+
     fetch('/process', {
       method: 'POST',
       body: formData
@@ -215,6 +338,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (warnings) {
         try {
           const warningList = JSON.parse(warnings);
+          partialErrors = warningList;
           console.warn('%c[ExcelProcessor] Some files had errors:', 'color: orange; font-weight: bold;');
           warningList.forEach(w => {
             console.warn(`  File: ${w.file} — Error: ${w.error}`);
@@ -242,14 +366,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.groupEnd();
               });
             }
-            throw new Error(errData.message || 'Processing failed');
+            const uiError = new Error(errData.message || 'Processing failed');
+            // Only file + error reach the UI; the traceback stays in the console.
+            uiError.details = (errData.errors || []).map(e => ({
+              file: e.file,
+              error: e.error
+            }));
+            throw uiError;
           });
         } else {
           return response.text().then(text => {
             console.error('%c[ExcelProcessor] Processing FAILED', 'color: red; font-weight: bold;');
             console.error('Status:', response.status, response.statusText);
             console.error('Response:', text);
-            throw new Error(text || 'Processing failed');
+            const uiError = new Error(text || 'Processing failed');
+            uiError.details = [];
+            throw uiError;
           });
         }
       }
@@ -281,12 +413,26 @@ document.addEventListener('DOMContentLoaded', () => {
         window.URL.revokeObjectURL(url);
       }, 100);
       
-      // Show success message
-      showMessage('Files processed successfully!', 'success');
+      // Show success message — or, if some files failed, the per-file reasons.
+      if (partialErrors.length) {
+        showMessage(
+          'Fișierele valide au fost descărcate, dar unele nu au putut fi procesate:',
+          'error',
+          partialErrors
+        );
+      } else {
+        showMessage('Fișiere procesate cu succes!', 'success');
+      }
     })
     .catch(err => {
       console.error('[ExcelProcessor] Error:', err);
-      showMessage('Error: ' + err.message + ' (check browser console F12 for details)', 'error');
+      // err.details is only set for responses that came back from the server,
+      // so network/JS failures still fall back to the generic wording.
+      const fromServer = Array.isArray(err.details);
+      const text = fromServer && err.message && !err.message.trim().startsWith('<')
+        ? err.message
+        : 'Ceva nu a funcționat. Încearcă din nou.';
+      showMessage(text, 'error', fromServer ? err.details : []);
     })
     .finally(() => {
       // Reset button state
@@ -296,7 +442,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  function showMessage(text, type) {
+  // `details` is an optional array of { file, error } coming from the backend.
+  // Each entry is rendered verbatim under the main text, prefixed by its filename.
+  function showMessage(text, type, details) {
     // Remove any existing messages
     const existingMessages = document.querySelectorAll('.message');
     existingMessages.forEach(msg => msg.remove());
@@ -304,23 +452,46 @@ document.addEventListener('DOMContentLoaded', () => {
     // Create new message element
     const message = document.createElement('div');
     message.className = `message ${type}`;
-    message.textContent = text;
     message.setAttribute('role', 'alert');
-    
+
+    const body = document.createElement('div');
+    body.className = 'message-body';
+
+    const main = document.createElement('span');
+    main.textContent = text;
+    body.appendChild(main);
+
+    const list = Array.isArray(details) ? details : [];
+    list.forEach(d => {
+      const detail = document.createElement('span');
+      detail.className = 'message-detail';
+
+      const fileName = document.createElement('strong');
+      fileName.className = 'message-detail-file';
+      fileName.textContent = d.file || 'Fișier necunoscut';
+      detail.appendChild(fileName);
+
+      // Backend message kept verbatim (Romanian, user-facing). No traceback here.
+      detail.appendChild(document.createTextNode(d.error || ''));
+      body.appendChild(detail);
+    });
+
+    message.appendChild(body);
+
     // Insert into message container
     const messageContainer = document.getElementById('message-container');
     if (messageContainer) {
       messageContainer.appendChild(message);
     }
-    
-    // Auto-remove after 5 seconds with fade-out
+
+    // Auto-remove with fade-out. Detailed errors stay longer so they can be read.
     setTimeout(() => {
       if (message.parentNode) {
         message.style.opacity = '0';
         message.style.transform = 'translateY(6px)';
         setTimeout(() => message.parentNode && message.remove(), 260);
       }
-    }, 5000);
+    }, list.length ? 20000 : 5000);
   }
 });
   

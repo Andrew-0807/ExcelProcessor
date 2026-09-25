@@ -1,0 +1,40 @@
+{
+  "topic": "Adaos comercial pe cote TVA — calcul automat cu sumar pe categorii",
+  "slides": [
+    {
+      "number": 1,
+      "role": "hook",
+      "headline": "Adaos comercial pe 4 cote de TVA. Tu mai calculezi asta cu calculatorul?",
+      "body": "9%, 11%, 19%, 21% — fiecare cotă are baza ei de calcul, TVA-ul ei, totalul ei. La final trebuie un sumar separat pentru fiecare categorie.",
+      "image_prompt": "Nano Banana Pro. Style: dark infographic, Instagram 4:5. Background: solid #0F0F0F. Layout: 2x2 grid of four cards centered. Each card: dark #1A1A1A rounded rectangle with large orange percentage number center and white label below. Card 1: '9%'. Card 2: '11%'. Card 3: '19%'. Card 4: '21%'. Below grid: orange warning pill '4 calcule separate / categorie'. Top: white headline 'ADAOS COMERCIAL'. Flat vector. Romanian text."
+    },
+    {
+      "number": 2,
+      "role": "before",
+      "headline": "Fișierul primit nu arată deloc cum te-ai aștepta",
+      "body": "Antetul coloanei se numește \"TVVAaloare Diferenta\" — cu typo în el. Procentele sunt scrise ca text: \"%19\", \"%9\". O coloană se întinde pe două celule contopite. Excel-ul original e construit manual, lună de lună.",
+      "image_prompt": "Nano Banana Pro. Style: dark chaos infographic, Instagram 4:5. Background: solid #0F0F0F. Layout: mockup of Excel header row. Cells shown as rounded rectangles in a row. One cell spans double width (merged), labeled 'TVVAaloare Diferenta' in red with a red zigzag underline (typo highlight). Another cell shows '%19' in red text with annotation arrow pointing to it labeled 'text, nu număr'. Third cell shows dashed red border labeled '??? (fără titlu)'. Orange X badge top-right corner of each problematic cell. Flat vector. Romanian text."
+    },
+    {
+      "number": 3,
+      "role": "detail",
+      "headline": "Ce se calculează pentru fiecare cotă",
+      "body": "Per cotă TVA: total valoare achiziție, TVA estimat, total valoare vânzare. La final: 3 rânduri de sumar adăugate automat după datele originale. Fără formule Excel. Fără calcul manual.",
+      "image_prompt": "Nano Banana Pro. Style: dark structured diagram, Instagram 4:5. Background: solid #0F0F0F. Layout: top section shows stylized data rows in a table (dark cards), then a dashed separator line, then bottom section shows three orange summary rows. Summary rows labeled: 'Total Valoare Achiziție: 12.450,00' / 'Total Valoare Vânzare: 15.320,00' / 'Total Adaos: 2.870,00'. Left side: vertical bracket labeled '19% TVA' spanning the summary rows. Orange #FF6B00 accent on all summary row backgrounds. White data rows above separator. Romanian text."
+    },
+    {
+      "number": 4,
+      "role": "after",
+      "headline": "Ce primești după procesare",
+      "body": "Încarci fișierul de adaos — typo-uri și antete contopite incluse. Primești datele originale curate, plus rânduri de sumar adăugate automat pentru fiecare cotă de TVA.",
+      "image_prompt": "Nano Banana Pro. Style: dark success infographic, Instagram 4:5. Background: solid #0F0F0F. Layout: vertical before-after stack. Top half: dark red-tinted card showing messy Excel header 'TVVAaloare Diferenta' and '%19' cells. Orange down arrow. Bottom half: green #00C853 card showing clean structured output: normal data rows + orange summary rows at bottom labeled 'Total Achizitie 19%: 12.450,00', 'Total Vanzare 19%: 15.320,00', 'Total Adaos 19%: 2.870,00'. Label above arrow: 'fișier original (cu erori)'. Label below arrow: 'output curat + sumar'. Flat vector. Romanian text."
+    },
+    {
+      "number": 5,
+      "role": "cta",
+      "headline": "Calculezi adaosul pe cote TVA în fiecare lună?",
+      "body": "Trimite-mi un mesaj.",
+      "image_prompt": "Nano Banana Pro. Style: minimal dark CTA, Instagram 4:5. Background: solid #0F0F0F. Layout: vertically centered. Top: thin orange #FF6B00 horizontal line full width. Center: large bold white text 'Trimite-mi un mesaj.' 64px Inter Bold, period in orange #FF6B00. Below: small orange downward arrow icon. No other elements. Maximum whitespace. Romanian text only."
+    }
+  ]
+}

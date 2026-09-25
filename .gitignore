@@ -7,7 +7,7 @@ __pycache__/
 *.pyd
 .Python
 *.so
-
+errors
 # Python package files
 *.egg
 *.egg-info/

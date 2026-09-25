@@ -10,7 +10,7 @@ Usage:
     python -m app.cli --type borderou --schema
     python -m app.cli --type cardcec --input file.xlsx --output out.xlsx --verbose
 
-Process types: borderou, cardcec, sales_transform, extract, minus, sgr, adaos
+Process types: borderou, cardcec, sales_transform, extract, sgr, adaos
 """
 
 import argparse
@@ -54,12 +54,6 @@ try:
 except Exception as e:
     _import_errors["sgr"] = str(e)
 
-ValoareMinus = None
-try:
-    from app.modules.core.valoare_minus import ValoareMinus
-except Exception as e:
-    _import_errors["minus"] = str(e)
-
 FormatAddColumn = None
 try:
     from app.modules.core.format_add_column import FormatAddColumn
@@ -98,7 +92,7 @@ try:
 except Exception as e:
     _import_errors["sales_transform"] = str(e)
 
-PROCESS_TYPES = ["borderou", "cardcec", "sales_transform", "furnizori", "minus", "sgr", "adaos"]
+PROCESS_TYPES = ["borderou", "cardcec", "sales_transform", "furnizori", "sgr", "adaos"]
 
 
 # ── Schema registry ──────────────────────────────────────────────────────────
@@ -156,29 +150,24 @@ def _process(process_type: str, input_path: str, output_path: str, verbose: bool
             raise RuntimeError(f"cardcec module failed to import: {_import_errors.get('cardcec')}")
 
         fd, temp_input = tempfile.mkstemp(suffix=".xlsx")
-        temp_csv = None
         try:
             with os.fdopen(fd, "wb") as f:
                 with open(input_path, "rb") as src:
                     f.write(src.read())
 
-            csv_dir = tempfile.mkdtemp()
-            temp_csv = os.path.join(csv_dir, os.path.splitext(os.path.basename(input_path))[0] + ".csv")
-
             pos_type = detect_pos_type(os.path.basename(input_path))
-            process_pos_file(temp_input, temp_csv, pos_type)
-
-            result_df = pd.read_csv(temp_csv, encoding="utf-8-sig")
+            # Process straight to a DataFrame; no CSV intermediate.
+            result_df = process_pos_file(
+                temp_input, output_path=None, pos_type=pos_type,
+                original_filename=os.path.basename(input_path),
+            )
         finally:
             if os.path.exists(temp_input):
                 os.remove(temp_input)
-            if temp_csv and os.path.exists(temp_csv):
-                os.remove(temp_csv)
 
     else:
         # In-memory DataFrame modules
         df = pd.read_excel(input_path, engine="openpyxl")
-        df.name = os.path.basename(input_path)
 
         if process_type == "sales_transform":
             if SalesTransformProcessor is None:
@@ -190,12 +179,6 @@ def _process(process_type: str, input_path: str, output_path: str, verbose: bool
             if ExcelDataExtractor is None:
                 raise RuntimeError(f"furnizori module failed to import: {_import_errors.get('furnizori')}")
             processor = ExcelDataExtractor()
-            result_df = processor.process_dataframe(df)
-
-        elif process_type == "minus":
-            if ValoareMinus is None:
-                raise RuntimeError(f"minus module failed to import: {_import_errors.get('minus')}")
-            processor = ValoareMinus()
             result_df = processor.process_dataframe(df)
 
         elif process_type == "sgr":

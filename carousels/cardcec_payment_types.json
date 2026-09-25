@@ -1,0 +1,40 @@
+{
+  "topic": "Plăți POS Card/CEC/Tichet → jurnalul de casă automat",
+  "slides": [
+    {
+      "number": 1,
+      "role": "hook",
+      "headline": "Card, CEC, tichet de masă — 3 tipuri de plată, 3 conturi diferite. Tu le sortezi manual?",
+      "body": "Fiecare zi aduce un export de la POS cu toate trei amestecate pe același rând. Contul corect trebuie ales pentru fiecare. Manual.",
+      "image_prompt": "Nano Banana Pro. Style: dark infographic, Instagram 4:5. Background: solid #0F0F0F. Layout: three vertical columns side by side. Each column: dark card #1A1A1A with icon at top and label below. Left card: credit card icon, white label 'CARD', orange sub-label 'Cont 48531'. Middle card: checkbook icon, white label 'CEC', orange sub-label 'Cont 48532'. Right card: ticket icon, white label 'TICHET', orange sub-label 'Cont 64781'. Between cards: small orange '+' separators. Bottom: red warning pill '❌ sortare manuală zilnică'. Flat vector icons. Romanian text."
+    },
+    {
+      "number": 2,
+      "role": "before",
+      "headline": "Exportul de la POS arată diferit în fiecare zi",
+      "body": "Coloana se numește \"Încasări\" într-un fișier și \"Incasari\" în altul — fără diacritice. Data apare ca \"18-Mar-26\" azi și \"18/03/2026\" mâine. Același POS, formate diferite.",
+      "image_prompt": "Nano Banana Pro. Style: dark chaos infographic, Instagram 4:5. Background: solid #0F0F0F. Layout: two stacked comparison cards with red X separator. Top card (red-tinted border): table header row showing 'Încasări' with diacritics, date cell showing '18-Mar-26'. Bottom card (red-tinted border): same header 'Incasari' without diacritics, date cell showing '18/03/2026'. Between them: red X badge label 'Același POS. Formate diferite.' Right side: orange annotation arrows pointing to the different spellings and date formats. Flat vector. Romanian text."
+    },
+    {
+      "number": 3,
+      "role": "detail",
+      "headline": "Ce trebuie să se întâmple cu fiecare tip",
+      "body": "CARD → cont 48531. CEC → cont 48532. TICHET → cont 64781. Valorile trebuie negate — sunt ieșiri din casă. Diacriticele lipsesc? Se normalizează automat.",
+      "image_prompt": "Nano Banana Pro. Style: dark mapping diagram, Instagram 4:5. Background: solid #0F0F0F. Layout: three horizontal mapping rows, stacked vertically. Each row: left pill (payment type label) → orange arrow → right pill (account label). Row 1: orange pill 'CARD' → arrow → white pill 'Cont 48531'. Row 2: orange pill 'CEC' → arrow → white pill 'Cont 48532'. Row 3: orange pill 'TICHET' → arrow → white pill 'Cont 64781'. Below all rows: dark card with orange minus icon and text 'Valoare: 1.250,00 → -1.250,00 (negat automat)'. Flat vector. Romanian text. Monospace font for account numbers."
+    },
+    {
+      "number": 4,
+      "role": "after",
+      "headline": "Ce primești după procesare",
+      "body": "Încarci fișierul de la POS. Primești jurnalul de casă complet: conturi corecte per tip de plată, valori negative, date formatate 20260318, diacritice rezolvate automat.",
+      "image_prompt": "Nano Banana Pro. Style: dark success infographic, Instagram 4:5. Background: solid #0F0F0F. Layout: before-after side by side with orange arrow. Left side: messy dark card showing jumbled text 'Incasari / 18-Mar-26 / card / 1250'. Right side: clean green #00C853 card with structured rows: 'CARD | 20260318 | Cont 48531 | -1.250,00'. Orange right arrow between cards. Bottom strip: orange bar with white text 'Zero calcule manuale.' Flat vector. Romanian text."
+    },
+    {
+      "number": 5,
+      "role": "cta",
+      "headline": "Sortezi plățile POS manual în fiecare zi?",
+      "body": "Trimite-mi un mesaj.",
+      "image_prompt": "Nano Banana Pro. Style: minimal dark CTA, Instagram 4:5. Background: solid #0F0F0F. Layout: vertically centered. Top: thin orange #FF6B00 horizontal line full width. Center: large bold white text 'Trimite-mi un mesaj.' 64px Inter Bold, period in orange #FF6B00. Below: small orange downward arrow icon. No other elements. Maximum whitespace. Romanian text only."
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "topic": "Fișier greșit la modulul greșit → eroare clară în română, nu crash",
+  "slides": [
+    {
+      "number": 1,
+      "role": "hook",
+      "headline": "Ai încărcat Borderoul de Vânzare la modul SGR. Se întâmplă.",
+      "body": "Șapte tipuri de fișiere. Șapte module diferite. Fișiere cu nume aproape identice. O greșeală de câteva secunde care îți poate pierde 20 de minute.",
+      "image_prompt": "Nano Banana Pro. Style: dark dramatic infographic, Instagram 4:5. Background: solid #0F0F0F. Layout: centered. Seven file badge pills in two columns: 'borderou.pdf' 'cardcec.xlsx' 'sgr.pdf' 'adaos.xlsx' 'furnizori.pdf' 'minus.xlsx' 'sales.xlsx'. One pill highlighted in red with a red warning icon: 'Borderou_de_Vanzare_FF1.pdf'. Red dashed arrow pointing from red pill to wrong module label 'Modul SGR ❌'. Flat vector. Romanian text."
+    },
+    {
+      "number": 2,
+      "role": "before",
+      "headline": "Eroarea reală primită de la sistem",
+      "body": "\"PDF-ul Borderou_de_Vanzare_FF1.pdf nu conține rânduri de date. Asigură-te că ai încărcat un PDF RetuRO-SGR valid (Garanții SGR Plătite cu Numerar).\" Nu un crash. Un mesaj care îți spune exact ce s-a întâmplat.",
+      "image_prompt": "Nano Banana Pro. Style: dark error message infographic, Instagram 4:5. Background: solid #0F0F0F. Layout: large centered dark card #1A1A1A styled as an error dialog box. Top of card: red horizontal bar with white text '⚠ Eroare procesare'. Card body: Romanian text in white monospace font — 'PDF-ul Borderou_de_Vanzare_FF1.pdf nu conține rânduri de date. Asigură-te că ai încărcat un PDF RetuRO-SGR valid (Garanții SGR Plătite cu Numerar).' — wrapped at ~40 chars/line. Bottom of card: orange button-shaped label 'Fișierul original salvat pentru debug'. Orange accent border left side of card. Flat vector. Romanian text."
+    },
+    {
+      "number": 3,
+      "role": "detail",
+      "headline": "De ce e atât de ușor să confunzi fișierele",
+      "body": "\"Borderou_de_Vanzare_(Incasare)_M1.pdf\" vs \"Borderou_de_Vanzare_SGR_M1.pdf\". Diferența e un singur cuvânt în mijlocul numelui. Sistemul de fișiere nu te avertizează.",
+      "image_prompt": "Nano Banana Pro. Style: dark comparison infographic, Instagram 4:5. Background: solid #0F0F0F. Layout: two stacked filename cards with annotation. Top card: dark #1A1A1A, filename text 'Borderou_de_Vanzare_(Incasare)_M1.pdf' in white monospace, no highlight. Bottom card: dark #1A1A1A, same filename 'Borderou_de_Vanzare_SGR_M1.pdf' with the word 'SGR' highlighted in orange. Orange callout bubble pointing to highlighted word: 'singura diferență'. Between cards: large red '≈' symbol. Flat vector monospace font. Romanian text."
+    },
+    {
+      "number": 4,
+      "role": "after",
+      "headline": "Detecție automată a tipului din numele fișierului",
+      "body": "Sistemul recunoaște tipul fișierului din nume: \"borderou\" → modul Borderou, \"incasari\" → modul CardCec, \"returo\" → modul SGR. Modul se selectează automat. Greșeală → mesaj în română, nu ecran alb.",
+      "image_prompt": "Nano Banana Pro. Style: dark auto-detection diagram, Instagram 4:5. Background: solid #0F0F0F. Layout: left column (filenames) → orange arrows → right column (auto-selected modules). Three rows: Row 1: filename badge 'borderou_M1.pdf' → arrow → green module badge 'Borderou ✅'. Row 2: filename badge 'incasari_FF1.xlsx' → arrow → green module badge 'CardCec ✅'. Row 3: filename badge 'returo_SGR.pdf' → arrow → green module badge 'SGR ✅'. Below all rows: orange info bar 'Greșeală? Mesaj clar în română — nu crash.' Flat vector. Romanian text."
+    },
+    {
+      "number": 5,
+      "role": "cta",
+      "headline": "Pierzi timp cu fișierele greșite și erorile neclare?",
+      "body": "Trimite-mi un mesaj.",
+      "image_prompt": "Nano Banana Pro. Style: minimal dark CTA, Instagram 4:5. Background: solid #0F0F0F. Layout: vertically centered. Top: thin orange #FF6B00 horizontal line full width. Center: large bold white text 'Trimite-mi un mesaj.' 64px Inter Bold, period in orange #FF6B00. Below: small orange downward arrow icon. No other elements. Maximum whitespace. Romanian text only."
+    }
+  ]
+}

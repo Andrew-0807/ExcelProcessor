@@ -4,6 +4,5 @@ openpyxl
 xlrd
 pystray
 Pillow
-requests
-packaging
 pdfplumber
+rich
