@@ -50,7 +50,10 @@ output/
 # Test data and temporary files
 *.tmp
 *.bak
+*.bak_*
 *.backup
+*_backup/
+*_backup.*
 
 # OS files
 .DS_Store
@@ -60,6 +63,7 @@ desktop.ini
 # IDE files
 .vscode/
 .idea/
+.claude/*.local.json
 *.swp
 *.swo
 *~
@@ -99,6 +103,14 @@ package-lock.json
 
 # Project planning (local only)
 openspec/
+
+# Demo artifacts
+demo/outputs/
+demo/videos/
+
+# Local scratch and backups
+old_CLAUDE.md
+app/modules/core/changes/
 
 # Hindsight memory banks (stored centrally at E:\Programming\Hindsight\banks\)
 banks/
